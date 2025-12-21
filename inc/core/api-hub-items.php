@@ -18,21 +18,21 @@ add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/get-hub-items', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_hub_items',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     // ADD item
     register_rest_route('knx/v1', '/add-hub-item', [
         'methods'  => 'POST',
         'callback' => 'knx_api_add_hub_item',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     // DELETE item
     register_rest_route('knx/v1', '/delete-hub-item', [
         'methods'  => 'POST',
         'callback' => 'knx_api_delete_hub_item',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 });
 

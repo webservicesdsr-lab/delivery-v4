@@ -103,10 +103,10 @@
 
 /* ===== Desktop ===== */
 @media (min-width: 901px) {
-  .knx-expand-btn { display: none !important; }
-
-  /* Only shift layout when admin sidebar exists on the page */
-  html.knx-has-admin-sidebar body {
+  .knx-expand-btn {
+    display: none !important;
+  }
+  body {
     margin-left: 230px;
   }
 }

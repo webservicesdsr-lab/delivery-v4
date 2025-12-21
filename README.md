@@ -1,3 +1,5 @@
+Prompt para armar tree: tree -a -I "node_modules|vendor|.git" > project-tree.txt
+
 ***KINGDOM NEXUS** is a system built using development practices commonly found in modern frameworks like Laravel 9–11—focusing on modularity, security, organization, controllers, roles, and clean separation of logic.
 From the beginning, the goal has been clear:
 

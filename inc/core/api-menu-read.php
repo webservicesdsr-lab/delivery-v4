@@ -38,7 +38,7 @@ add_action('rest_api_init', function () {
   register_rest_route('knx/v1', '/menu', [
     'methods'  => WP_REST_Server::READABLE,
     'callback' => 'knx_api_get_menu',
-    'permission_callback' => knx_permission_public(),
+    'permission_callback' => '__return_true',
     'args' => [
       'hub_id' => [
         'required' => false,

@@ -15,24 +15,16 @@ if (!defined('ABSPATH')) exit;
 
 add_action('rest_api_init', function () {
 
-    knx_register_route('knx/v1', '/get-city', [
+    register_rest_route('knx/v1', '/get-city', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_city_v3',
-    ], [
-        'requires_auth' => true,
-        'min_role' => 'manager',
-        'csrf' => false,
-        'rate_limit' => ['limit' => 60, 'window' => 60, 'scope' => 'session']
+        'permission_callback' => '__return_true',
     ]);
 
-    knx_register_route('knx/v1', '/update-city', [
+    register_rest_route('knx/v1', '/update-city', [
         'methods'  => 'POST',
         'callback' => 'knx_api_update_city_v3',
-    ], [
-        'requires_auth' => true,
-        'min_role' => 'manager',
-        'csrf' => true,
-        'rate_limit' => ['limit' => 30, 'window' => 60, 'scope' => 'session']
+        'permission_callback' => '__return_true',
     ]);
 });
 
@@ -47,6 +39,10 @@ function knx_api_get_city_v3(WP_REST_Request $r) {
     $id = intval($r->get_param('id'));
     if (!$id)
         return new WP_REST_Response(['success' => false, 'error' => 'missing_id'], 400);
+
+    $session = knx_get_session();
+    if (!$session || !in_array($session->role, ['super_admin', 'manager']))
+        return new WP_REST_Response(['success' => false, 'error' => 'unauthorized'], 403);
 
     $city = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", $id));
     if (!$city)
@@ -63,10 +59,18 @@ function knx_api_update_city_v3(WP_REST_Request $r) {
 
     $table = $wpdb->prefix . 'knx_cities';
 
-    $data   = json_decode($r->get_body(), true);
-    $id     = intval($data['id'] ?? 0);
-    $name   = sanitize_text_field($data['name'] ?? '');
+    $data  = json_decode($r->get_body(), true);
+    $id    = intval($data['id'] ?? 0);
+    $name  = sanitize_text_field($data['name'] ?? '');
     $status = sanitize_text_field($data['status'] ?? 'active');
+    $nonce = sanitize_text_field($data['knx_nonce'] ?? '');
+
+    if (!wp_verify_nonce($nonce, 'knx_edit_city_nonce'))
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
+
+    $session = knx_get_session();
+    if (!$session || !in_array($session->role, ['super_admin', 'manager']))
+        return new WP_REST_Response(['success' => false, 'error' => 'unauthorized'], 403);
 
     if (!$id || empty($name))
         return new WP_REST_Response(['success' => false, 'error' => 'missing_fields'], 400);

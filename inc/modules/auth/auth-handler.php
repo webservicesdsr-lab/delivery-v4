@@ -69,40 +69,18 @@ add_action('init', function() {
             'samesite' => 'Strict'
         ]);
 
-        // TASK 5: Normalize Login Redirect Behavior
-        $redirect_to = null;
+        // Redirect by role
+        $redirects = [
+            'super_admin'   => '/home',
+            'manager'       => '/home',
+            'menu_uploader' => '/hubs',
+            'driver'        => '/driver-dashboard',
+            'customer'      => '/home',
+            'user'          => '/home'
+        ];
 
-        // Check for preserved redirect from deep-link
-        if (isset($_POST['knx_redirect']) && !empty($_POST['knx_redirect'])) {
-            $redirect_candidate = sanitize_text_field($_POST['knx_redirect']);
-            
-            // Security: only allow internal paths (starts with / but not //)
-            if (strpos($redirect_candidate, '/') === 0 && strpos($redirect_candidate, '//') === false) {
-                // Basic validation: check if path looks reasonable
-                $path = trim($redirect_candidate, '/');
-                $parts = explode('/', $path);
-                // Accept paths like /dashboard, /hubs, /edit-hub?id=123, etc.
-                if (!empty($parts[0]) && preg_match('/^[a-z0-9-]+/', $parts[0])) {
-                    $redirect_to = $redirect_candidate;
-                }
-            }
-        }
-        
-        // Fallback to role-based defaults if no valid redirect
-        if (!$redirect_to) {
-            $redirects = [
-                'super_admin'   => '/hubs',
-                'manager'       => '/hubs',
-                'menu_uploader' => '/hubs',
-                'hub_management' => '/hubs',
-                'driver'        => '/hubs', // Temporary until driver-dashboard is built
-                'customer'      => '/home',
-                'user'          => '/home'
-            ];
-            $redirect_to = isset($redirects[$user->role]) ? $redirects[$user->role] : '/home';
-        }
-        
-        wp_safe_redirect(site_url($redirect_to));
+        $target = isset($redirects[$user->role]) ? $redirects[$user->role] : '/home';
+        wp_safe_redirect(site_url($target));
         exit;
     }
 
@@ -134,8 +112,8 @@ add_action('wp_ajax_knx_logout_user', function() {
         wp_send_json_error(['message' => 'Invalid nonce'], 403);
     }
 
-    // Perform logout without redirect (AJAX context)
-    knx_logout_user(false);
+    // Perform logout
+    knx_logout_user();
 
     wp_send_json_success(['redirect' => site_url('/login')]);
 });

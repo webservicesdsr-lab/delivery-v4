@@ -11,7 +11,7 @@ add_action('rest_api_init', function() {
   register_rest_route('knx/v1', '/update-closure', [
     'methods' => 'POST',
     'callback' => 'knx_update_closure',
-    'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management']),
+    'permission_callback' => '__return_true',
   ]);
 });
 

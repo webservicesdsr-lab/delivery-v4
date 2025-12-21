@@ -21,22 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addRateBtn");
   const saveBtn = document.getElementById("saveRatesBtn");
 
-  /** Helper: Get CSRF token reliably */
-  function getCSRF() {
-    // 1. Try window.KNX.csrf
-    if (window.KNX && window.KNX.csrf) return window.KNX.csrf;
-    
-    // 2. Try meta tag
-    const meta = document.querySelector('meta[name="knx-csrf"]');
-    if (meta) return meta.getAttribute('content');
-    
-    // 3. Try cookie (fallback)
-    const match = document.cookie.match(/knx_csrf=([^;]+)/);
-    if (match) return match[1];
-    
-    return null;
-  }
-
   /** Render a single rate row */
   function createRateRow(from = "", to = "", price = "") {
     const displayTo = to === null || to === "null" ? "" : to;
@@ -70,9 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /** Load existing rates */
   async function loadRates() {
     try {
-      const res = await fetch(`${apiGet}?id=${cityId}`, {
-        credentials: 'same-origin'
-      });
+      const res = await fetch(`${apiGet}?id=${cityId}`);
       const data = await res.json();
 
       container.innerHTML = "";
@@ -103,12 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /** Save all rates */
   if (saveBtn) {
     saveBtn.addEventListener("click", async () => {
-      const csrf = getCSRF();
-      if (!csrf) {
-        knxToast("鈿狅笍 Security token missing. Please refresh the page.", "error");
-        return;
-      }
-
       const rows = container.querySelectorAll(".knx-rate-row");
       const rates = Array.from(rows).map((row) => {
         const toValue = row.querySelector(".to").value.trim();
@@ -122,11 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch(apiUpdate, {
           method: "POST",
-          credentials: 'same-origin',
-          headers: {
-            "Content-Type": "application/json",
-            "X-KNX-CSRF": csrf
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ city_id: cityId, rates, knx_nonce: nonce }),
         });
         const out = await res.json();

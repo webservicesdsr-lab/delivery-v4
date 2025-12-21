@@ -40,11 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.disabled = true;
 
       try {
-        const res = await fetch(apiAdd, {
-          method: "POST",
-          headers: { "X-KNX-CSRF": window.KNX?.csrf || "" },
-          body: data
-        });
+        const res = await fetch(apiAdd, { method: "POST", body: data });
         const out = await res.json();
 
         if (out.success) {
@@ -75,10 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch(apiToggle, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-KNX-CSRF": window.KNX?.csrf || ""
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id,
             status,

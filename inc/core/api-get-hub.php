@@ -14,7 +14,7 @@ add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/get-hub', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_hub_v40',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 });
 

@@ -15,7 +15,6 @@ if (!defined('ABSPATH')) exit;
  */
 
 add_shortcode('knx_edit_hub_items', function() {
-    knx_set_admin_context();
 
     // --- Auth Guard ---
     $session = knx_get_session();

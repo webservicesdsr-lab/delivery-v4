@@ -50,10 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch(apiUpdate, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-KNX-CSRF": window.KNX?.csrf || ""
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
         const data = await res.json();

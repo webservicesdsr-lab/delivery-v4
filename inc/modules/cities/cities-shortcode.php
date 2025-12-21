@@ -15,8 +15,6 @@ if (!defined('ABSPATH')) exit;
  */
 
 add_shortcode('knx_cities', function() {
-    knx_set_admin_context();
-    
     global $wpdb;
 
     /** Validate session & roles */

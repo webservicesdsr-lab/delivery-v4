@@ -22,21 +22,21 @@ add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/explore-hubs', [
         'methods'             => 'GET',
         'callback'            => 'knx_api_explore_hubs',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
     ]);
 
     // Featured hubs
     register_rest_route('knx/v1', '/explore-hubs-spotlights', [
         'methods'             => 'GET',
         'callback'            => 'knx_api_explore_hubs_spotlights',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
     ]);
 
     // Cuisine options
     register_rest_route('knx/v1', '/explore-hubs-cuisines', [
         'methods'             => 'GET',
         'callback'            => 'knx_api_explore_hubs_cuisines',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
     ]);
 });
 

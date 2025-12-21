@@ -14,7 +14,7 @@ add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/hub-status/(?P<id>\d+)', [
         'methods'             => 'GET',
         'callback'            => 'knx_api_hub_status',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
         'args' => [
             'id' => [
                 'validate_callback' => function($param, $request, $key) {
@@ -28,14 +28,14 @@ add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/hubs-with-hours', [
         'methods'             => 'GET',
         'callback'            => 'knx_api_hubs_with_hours',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
     ]);
     
     // Batch status check for multiple hubs
     register_rest_route('knx/v1', '/hubs-status', [
         'methods'             => 'POST',
         'callback'            => 'knx_api_hubs_status_batch',
-        'permission_callback' => knx_permission_public(),
+        'permission_callback' => '__return_true',
     ]);
 });
 

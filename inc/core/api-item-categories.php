@@ -17,26 +17,26 @@ add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/get-item-categories', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_item_categories',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/save-item-category', [
         'methods'  => 'POST',
         'callback' => 'knx_api_save_item_category',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/reorder-item-category', [
         'methods'  => 'POST',
         'callback' => 'knx_api_reorder_item_category',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     // Si ya tienes este endpoint en otro archivo, puedes comentar este bloque:
     register_rest_route('knx/v1', '/toggle-item-category', [
         'methods'  => 'POST',
         'callback' => 'knx_api_toggle_item_category',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 });
 

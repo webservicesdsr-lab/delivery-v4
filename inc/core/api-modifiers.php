@@ -8,55 +8,55 @@ add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/get-item-modifiers', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_item_modifiers',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/save-modifier', [
         'methods'  => 'POST',
         'callback' => 'knx_api_save_modifier',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/delete-modifier', [
         'methods'  => 'POST',
         'callback' => 'knx_api_delete_modifier',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/reorder-modifier', [
         'methods'  => 'POST',
         'callback' => 'knx_api_reorder_modifier',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/save-modifier-option', [
         'methods'  => 'POST',
         'callback' => 'knx_api_save_modifier_option',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/delete-modifier-option', [
         'methods'  => 'POST',
         'callback' => 'knx_api_delete_modifier_option',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/reorder-modifier-option', [
         'methods'  => 'POST',
         'callback' => 'knx_api_reorder_modifier_option',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/get-global-modifiers', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_global_modifiers',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     register_rest_route('knx/v1', '/clone-global-modifier', [
         'methods'  => 'POST',
         'callback' => 'knx_api_clone_global_modifier',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 });
 

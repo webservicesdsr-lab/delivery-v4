@@ -17,21 +17,21 @@ add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/get-item-addon-groups', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_item_addon_groups',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     // POST asignar grupo a item
     register_rest_route('knx/v1', '/assign-addon-group-to-item', [
         'methods'  => 'POST',
         'callback' => 'knx_api_assign_addon_group_to_item',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 
     // POST remover grupo de item
     register_rest_route('knx/v1', '/remove-addon-group-from-item', [
         'methods'  => 'POST',
         'callback' => 'knx_api_remove_addon_group_from_item',
-        'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+        'permission_callback' => '__return_true',
     ]);
 });
 

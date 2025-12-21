@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) exit;
  */
 
 add_shortcode('knx_edit_item_categories', function () {
-    knx_set_admin_context();
 
     $session = knx_get_session();
     if (!$session || !in_array($session->role, ['manager','super_admin','hub_management','menu_uploader'])) {

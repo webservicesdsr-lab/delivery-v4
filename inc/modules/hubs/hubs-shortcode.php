@@ -13,8 +13,6 @@ if (!defined('ABSPATH')) exit;
  */
 
 add_shortcode('knx_hubs', function() {
-    knx_set_admin_context();
-    
     global $wpdb;
 
     /** Validate session and roles */

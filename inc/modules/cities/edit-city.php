@@ -17,8 +17,6 @@ if (!defined('ABSPATH')) exit;
  */
 
 add_shortcode('knx_edit_city', function() {
-    knx_set_admin_context();
-    
     global $wpdb;
 
     /** Validate session */

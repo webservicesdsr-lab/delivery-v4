@@ -29,16 +29,6 @@ add_shortcode('knx_auth', function () {
 
             <form method="post">
                 <?php knx_nonce_field('login'); ?>
-                <?php
-                // TASK 4: Preserve redirect destination
-                if (isset($_GET['redirect'])) {
-                    $redirect = sanitize_text_field($_GET['redirect']);
-                    // Security: only allow internal paths
-                    if (strpos($redirect, '/') === 0 && strpos($redirect, '//') === false) {
-                        echo '<input type="hidden" name="knx_redirect" value="' . esc_attr($redirect) . '">';
-                    }
-                }
-                ?>
 
                 <div class="knx-input-group">
                     <input type="text" name="knx_login" placeholder="Username or Email" required>

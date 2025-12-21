@@ -3,98 +3,60 @@ if (!defined('ABSPATH')) exit;
 
 /**
  * ==========================================================
- * Kingdom Nexus - Checkout Pre-Validation API (SAFE BUILD)
- * Version: Production v5 - Stable, No external calls at load
+ * Kingdom Nexus - Checkout Pre-Validation API (Production)
+ * Endpoint:
+ *   POST /wp-json/knx/v1/checkout/prevalidate
+ * ----------------------------------------------------------
+ * Secures the checkout by validating:
+ * - Session token (guest or logged-in)
+ * - Cart existence in DB
+ * - Cart has items
+ * - Hub exists
+ * - Hub is open at this moment
+ * - Subtotal integrity
+ *
+ * Returns a safe payload used by checkout-payment-flow.js
  * ==========================================================
  */
 
 add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/checkout/prevalidate', [
         'methods'             => 'POST',
-        'callback'            => 'knx_api_checkout_prevalidate_secure',
-        'permission_callback' => knx_permission_callback(['customer']),
+        'callback'            => 'knx_api_checkout_prevalidate',
+        'permission_callback' => '__return_true',
     ]);
 });
 
-/**
- * ==========================================================
- * SAFE SHIELD (NO external HTTP calls)
- * ==========================================================
- */
 
-function knx_prevalidate_shield_safe() {
-
-    // Use helper to get real IP (handles proxies/CDN)
-    $ip = function_exists('knx_get_client_ip') ? knx_get_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
-
-    // Rate limit only (removed IPv6 blocking - legitimate mobile users)
-    $key  = 'knx_prevalidate_rate_' . md5($ip);
-    $hits = intval(get_transient($key));
-
-    if ($hits > 40) {
-        return new WP_REST_Response([
-            'success' => false,
-            'error'   => 'rate_limited',
-            'message' => 'Too many requests. Try again shortly.'
-        ], 429);
-    }
-
-    set_transient($key, $hits + 1, 20); // 20 seconds
-
-    return true;
-}
-
-/**
- * ==========================================================
- * MAIN CHECKOUT PREVALIDATE HANDLER
- * ==========================================================
- */
-
-function knx_api_checkout_prevalidate_secure(WP_REST_Request $req) {
+function knx_api_checkout_prevalidate(WP_REST_Request $req) {
     global $wpdb;
-
-    // ---------- SAFE SHIELD ----------
-    $shield = knx_prevalidate_shield_safe();
-    if ($shield !== true) return $shield;
-    
-    // ---------- TASK 3: AUTH GUARD ----------
-    $auth_guard = knx_guard_checkout_api('customer');
-    if ($auth_guard !== true) return $auth_guard;
 
     $table_carts      = $wpdb->prefix . 'knx_carts';
     $table_cart_items = $wpdb->prefix . 'knx_cart_items';
     $table_hubs       = $wpdb->prefix . 'knx_hubs';
 
     // ----------------------------------------
-    // 1) Extract JSON body
+    // 1) Extract session_token from request
     // ----------------------------------------
     $body = $req->get_json_params();
+    $session_token = isset($body['session_token'])
+        ? sanitize_text_field($body['session_token'])
+        : '';
 
-    if (!is_array($body)) {
-        return new WP_REST_Response([
-            'success' => false,
-            'error'   => 'invalid_payload',
-            'message' => 'Malformed JSON body.'
-        ], 400);
-    }
-
-    $session_token = sanitize_text_field($body['session_token'] ?? '');
-
-    if (!$session_token) {
+    if ($session_token === '') {
         return new WP_REST_Response([
             'success' => false,
             'error'   => 'missing_session',
-            'message' => 'Session token missing.'
+            'message' => 'No session token provided.'
         ], 400);
     }
 
     // ----------------------------------------
-    // 2) Locate active cart
+    // 2) Get active cart for this session
     // ----------------------------------------
     $cart = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM {$table_carts}
-         WHERE session_token = %s
-           AND status = 'active'
+         WHERE session_token = %s AND status = 'active'
          ORDER BY updated_at DESC
          LIMIT 1",
         $session_token
@@ -104,12 +66,12 @@ function knx_api_checkout_prevalidate_secure(WP_REST_Request $req) {
         return new WP_REST_Response([
             'success' => false,
             'error'   => 'cart_not_found',
-            'message' => 'Cart expired or missing.'
+            'message' => 'Cart does not exist or expired.'
         ], 404);
     }
 
     // ----------------------------------------
-    // 3) Load cart items
+    // 3) Fetch cart items
     // ----------------------------------------
     $items = $wpdb->get_results(
         $wpdb->prepare(
@@ -120,21 +82,21 @@ function knx_api_checkout_prevalidate_secure(WP_REST_Request $req) {
         )
     );
 
-    if (!$items) {
+    if (empty($items)) {
         return new WP_REST_Response([
             'success' => false,
             'error'   => 'empty_cart',
-            'message' => 'No items found.'
+            'message' => 'The cart has no items.'
         ], 400);
     }
 
     // ----------------------------------------
-    // 4) Validate hub
+    // 4) Fetch hub info
     // ----------------------------------------
-    $table_hubs = $wpdb->prefix . "knx_hubs";
-
     $hub = $wpdb->get_row($wpdb->prepare(
-        "SELECT id, name FROM {$table_hubs} WHERE id = %d",
+        "SELECT id, name, hours_json, temporary_closed_until 
+         FROM {$table_hubs}
+         WHERE id = %d",
         $cart->hub_id
     ));
 
@@ -142,20 +104,40 @@ function knx_api_checkout_prevalidate_secure(WP_REST_Request $req) {
         return new WP_REST_Response([
             'success' => false,
             'error'   => 'hub_not_found',
-            'message' => 'Restaurant missing.'
+            'message' => 'Hub does not exist.'
         ], 404);
     }
 
     // ----------------------------------------
-    // 5) Recompute subtotal
+    // 5) Validate that hub is open (using hours engine)
     // ----------------------------------------
-    $computed = 0.0;
+    if (function_exists('knx_hub_is_open')) {
+        $is_open = knx_hub_is_open($hub->id);
 
-    foreach ($items as $line) {
-        $computed += floatval($line->line_total);
+        if (!$is_open) {
+            return new WP_REST_Response([
+                'success' => false,
+                'error'   => 'hub_closed',
+                'message' => 'The restaurant is currently closed.'
+            ], 400);
+        }
     }
 
-    if (abs($computed - floatval($cart->subtotal)) > 0.05) {
+    // ----------------------------------------
+    // 6) Validate subtotal consistency
+    // ----------------------------------------
+    $computed_subtotal = 0.0;
+
+    foreach ($items as $line) {
+        $line_total = isset($line->line_total)
+            ? (float) $line->line_total
+            : 0;
+
+        $computed_subtotal += $line_total;
+    }
+
+    // Allow small floating discrepancies (Stripe level)
+    if (abs($computed_subtotal - (float)$cart->subtotal) > 0.05) {
         return new WP_REST_Response([
             'success' => false,
             'error'   => 'subtotal_mismatch',
@@ -164,14 +146,15 @@ function knx_api_checkout_prevalidate_secure(WP_REST_Request $req) {
     }
 
     // ----------------------------------------
-    // 6) Final OK response
+    // 7) Build sanitized response for frontend
     // ----------------------------------------
     return new WP_REST_Response([
         'success'   => true,
-        'cart_id'   => intval($cart->id),
-        'hub_id'    => intval($hub->id),
+        'cart_id'   => (int) $cart->id,
+        'hub_id'    => (int) $hub->id,
         'hub_name'  => $hub->name,
-        'subtotal'  => round($computed, 2),
-        'next_step' => 'ready_for_payment'
+        'subtotal'  => round($computed_subtotal, 2),
+        'next_step' => 'ready_for_payment',
+        'message'   => 'Cart validated successfully.'
     ], 200);
 }

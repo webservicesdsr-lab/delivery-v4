@@ -22,77 +22,42 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // ===== Admin Sidebar =====
   const adminBtn = document.getElementById("knxAdminMenuBtn");
-
-  // Two possible admin UIs:
-  // A) Legacy navbar admin sidebar: #knxAdminSidebar + #knxAdminOverlay
-  // B) New injected admin sidebar: #knxSidebar (from sidebar-render.php)
-
-  const legacySidebar = document.getElementById("knxAdminSidebar");
-  const legacyOverlay = document.getElementById("knxAdminOverlay");
-  const legacyClose = document.getElementById("knxAdminClose");
-
-  const injectedSidebar = document.getElementById("knxSidebar"); // new system
-  const injectedExpandBtn = document.getElementById("knxExpandMobile"); // optional
-
-  function lockScroll() { document.documentElement.classList.add("knx-drawer-lock"); }
-  function unlockScroll() { document.documentElement.classList.remove("knx-drawer-lock"); }
-
-  function openLegacyAdminSidebar() {
-    if (!legacySidebar || !legacyOverlay) return;
-    legacySidebar.classList.add("active");
-    legacyOverlay.classList.add("active");
-    lockScroll();
-  }
-
-  function closeLegacyAdminSidebar() {
-    if (!legacySidebar || !legacyOverlay) return;
-    legacySidebar.classList.remove("active");
-    legacyOverlay.classList.remove("active");
-    unlockScroll();
-  }
-
-  // For injected sidebar: we don't use overlay, just ensure it's visible/expanded on mobile
-  function openInjectedAdminSidebar() {
-    if (!injectedSidebar) return;
-    // On mobile, ensure expanded so links are visible
-    if (window.innerWidth <= 900) injectedSidebar.classList.add("expanded");
-  }
-
-  function closeInjectedAdminSidebar() {
-    if (!injectedSidebar) return;
-    if (window.innerWidth <= 900) injectedSidebar.classList.remove("expanded");
-  }
+  const adminSidebar = document.getElementById("knxAdminSidebar");
+  const adminOverlay = document.getElementById("knxAdminOverlay");
+  const adminClose = document.getElementById("knxAdminClose");
 
   function openAdminSidebar() {
-    // Prefer legacy overlay system if present (navbar admin sidebar)
-    if (legacySidebar) return openLegacyAdminSidebar();
-    // Otherwise use injected system (internal pages sidebar)
-    if (injectedSidebar) return openInjectedAdminSidebar();
+    if (adminSidebar && adminOverlay) {
+      adminSidebar.classList.add("active");
+      adminOverlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
   }
 
   function closeAdminSidebar() {
-    if (legacySidebar) return closeLegacyAdminSidebar();
-    if (injectedSidebar) return closeInjectedAdminSidebar();
+    if (adminSidebar && adminOverlay) {
+      adminSidebar.classList.remove("active");
+      adminOverlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
   }
 
   if (adminBtn) {
-    adminBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      openAdminSidebar();
-    });
+    adminBtn.addEventListener("click", openAdminSidebar);
   }
 
-  if (legacyClose) legacyClose.addEventListener("click", closeLegacyAdminSidebar);
-  if (legacyOverlay) legacyOverlay.addEventListener("click", closeLegacyAdminSidebar);
+  if (adminClose) {
+    adminClose.addEventListener("click", closeAdminSidebar);
+  }
 
-  // Close admin UI with ESC key
+  if (adminOverlay) {
+    adminOverlay.addEventListener("click", closeAdminSidebar);
+  }
+
+  // Close admin sidebar with ESC key
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape") return;
-    // Close legacy overlay if open
-    if (legacySidebar && legacySidebar.classList.contains("active")) closeLegacyAdminSidebar();
-    // Collapse injected sidebar on mobile
-    if (injectedSidebar && window.innerWidth <= 900 && injectedSidebar.classList.contains("expanded")) {
-      closeInjectedAdminSidebar();
+    if (e.key === "Escape" && adminSidebar?.classList.contains("active")) {
+      closeAdminSidebar();
     }
   });
 

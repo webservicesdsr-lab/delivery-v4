@@ -15,34 +15,22 @@ if (!defined('ABSPATH')) exit;
 
 add_action('rest_api_init', function () {
 
-    knx_register_route('knx/v1', '/get-cities', [
+    register_rest_route('knx/v1', '/get-cities', [
         'methods'  => 'GET',
         'callback' => 'knx_api_get_cities_v3',
-    ], [
-        'requires_auth' => true,
-        'min_role' => 'manager',
-        'csrf' => false,
-        'rate_limit' => ['limit' => 60, 'window' => 60, 'scope' => 'session']
+        'permission_callback' => '__return_true',
     ]);
 
-    knx_register_route('knx/v1', '/add-city', [
+    register_rest_route('knx/v1', '/add-city', [
         'methods'  => 'POST',
         'callback' => 'knx_api_add_city_v3',
-    ], [
-        'requires_auth' => true,
-        'min_role' => 'manager',
-        'csrf' => true,
-        'rate_limit' => ['limit' => 30, 'window' => 60, 'scope' => 'session']
+        'permission_callback' => '__return_true',
     ]);
 
-    knx_register_route('knx/v1', '/toggle-city', [
+    register_rest_route('knx/v1', '/toggle-city', [
         'methods'  => 'POST',
         'callback' => 'knx_api_toggle_city_v3',
-    ], [
-        'requires_auth' => true,
-        'min_role' => 'manager',
-        'csrf' => true,
-        'rate_limit' => ['limit' => 30, 'window' => 60, 'scope' => 'session']
+        'permission_callback' => '__return_true',
     ]);
 });
 
@@ -53,6 +41,10 @@ function knx_api_get_cities_v3() {
     global $wpdb;
 
     $table = $wpdb->prefix . 'knx_cities';
+
+    $session = knx_get_session();
+    if (!$session)
+        return new WP_REST_Response(['success' => false, 'error' => 'unauthorized'], 403);
 
     $cities = $wpdb->get_results("SELECT id, name, status, state, country, created_at, updated_at FROM {$table} ORDER BY id DESC");
 
@@ -67,7 +59,15 @@ function knx_api_add_city_v3(WP_REST_Request $r) {
 
     $table = $wpdb->prefix . 'knx_cities';
 
-    $name = sanitize_text_field($r['name']);
+    $session = knx_get_session();
+    if (!$session)
+        return new WP_REST_Response(['success' => false, 'error' => 'unauthorized'], 403);
+
+    $name  = sanitize_text_field($r['name']);
+    $nonce = sanitize_text_field($r['knx_nonce']);
+
+    if (!wp_verify_nonce($nonce, 'knx_add_city_nonce'))
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
 
     if (empty($name))
         return new WP_REST_Response(['success' => false, 'error' => 'missing_name'], 400);
@@ -98,9 +98,17 @@ function knx_api_toggle_city_v3(WP_REST_Request $r) {
 
     $table = $wpdb->prefix . 'knx_cities';
 
-    $data   = json_decode($r->get_body(), true);
-    $id     = intval($data['id'] ?? 0);
+    $session = knx_get_session();
+    if (!$session)
+        return new WP_REST_Response(['success' => false, 'error' => 'unauthorized'], 403);
+
+    $data  = json_decode($r->get_body(), true);
+    $id    = intval($data['id'] ?? 0);
     $status = sanitize_text_field($data['status'] ?? 'active');
+    $nonce = sanitize_text_field($data['knx_nonce'] ?? '');
+
+    if (!wp_verify_nonce($nonce, 'knx_toggle_city_nonce'))
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
 
     if (!$id)
         return new WP_REST_Response(['success' => false, 'error' => 'missing_id'], 400);

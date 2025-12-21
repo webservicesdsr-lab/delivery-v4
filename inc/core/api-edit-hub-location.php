@@ -14,21 +14,21 @@ add_action('rest_api_init', function () {
   register_rest_route('knx/v1', '/update-hub-location', [
     'methods'  => 'POST',
     'callback' => 'knx_api_update_hub_location',
-    'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+    'permission_callback' => '__return_true',
   ]);
   
   // Get hub polygon endpoint (old app style)
   register_rest_route('knx/v1', '/get-hub-polygon/(?P<id>\d+)', [
     'methods'  => 'GET',
     'callback' => 'knx_api_get_hub_polygon',
-    'permission_callback' => knx_permission_callback(['super_admin', 'manager', 'hub_management', 'menu_uploader']),
+    'permission_callback' => '__return_true',
   ]);
 });
 
 function knx_api_update_hub_location(WP_REST_Request $r) {
   global $wpdb;
 
-  // --- Auth (sesiï¿½ï¿½n + nonce)
+  // --- Auth (sesi¨®n + nonce)
   $session = function_exists('knx_get_session') ? knx_get_session() : null;
   if (
     !$session ||
@@ -51,7 +51,7 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
   $zone_type = sanitize_text_field($r->get_param('delivery_zone_type') ?: 'radius');
   $polygon_points = $r->get_param('polygon_points'); // Array from old app format
 
-  // Aceptar 0.0 vï¿½ï¿½lidos (no usar if(!$lat))
+  // Aceptar 0.0 v¨¢lidos (no usar if(!$lat))
   $lat = is_numeric($lat_raw) ? (float)$lat_raw : null;
   $lng = is_numeric($lng_raw) ? (float)$lng_raw : null;
   $radius = is_numeric($radius_raw) ? (float)$radius_raw : 0.0;

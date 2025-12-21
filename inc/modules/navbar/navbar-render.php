@@ -2,32 +2,26 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - Navbar Renderer (v8 - Top Position)
+ * Kingdom Nexus - Navbar Renderer (v7 Simple - Local Bites Style)
  * Logo left, Cart + User right
- * Renders at wp_body_open for proper placement
  */
 
-/**
- * Render the navbar (extracted from inline closure)
- */
-function knx_render_navbar() {
+add_action('wp_body_open', function () {
     global $post;
     $slug = is_object($post) ? $post->post_name : '';
 
-    // Skip navbar on admin/dashboard pages
-    $admin_slugs = [
+    $private_slugs = [
         'dashboard','basic-dashboard','advanced-dashboard',
         'hubs','edit-hub','edit-hub-items','edit-item-categories',
         'drivers','customers','cities','settings','menus','hub-categories'
     ];
-    if (in_array($slug, $admin_slugs, true)) return;
+    if (in_array($slug, $private_slugs, true)) return;
 
     $session  = knx_get_session();
     $is_logged = $session ? true : false;
     $username  = $session ? $session->username : '';
     $role      = $session ? $session->role : 'guest';
-    $role_level = $is_logged ? knx_get_role_level($role) : 0;
-    $is_admin = $role_level >= 3;
+    $is_admin  = in_array($role, ['super_admin','manager','hub_management','menu_uploader'], true);
 
     // === Assets (con echo) ===
     echo '<link rel="stylesheet" href="' . esc_url(KNX_URL . 'inc/modules/navbar/navbar-style.css?v=' . KNX_VERSION) . '">';
@@ -37,21 +31,10 @@ function knx_render_navbar() {
     echo '<link rel="stylesheet" href="' . esc_url(KNX_URL . 'inc/modules/cart/cart-drawer.css?v=' . KNX_VERSION) . '">';
     echo '<script src="' . esc_url(KNX_URL . 'inc/modules/cart/cart-drawer.js?v=' . KNX_VERSION) . '" defer></script>';
 
-    // Detector de ubicación solo en explore
-    if ($slug === 'explore-hubs' && !in_array($slug, $admin_slugs, true)) {
+    // Detector de ubicaci贸n solo en explore
+    if ($slug === 'explore-hubs') {
       echo '<link rel="stylesheet" href="' . esc_url(KNX_URL . 'inc/modules/home/knx-location-modal.css?v=' . KNX_VERSION) . '">';
       echo '<script src="' . esc_url(KNX_URL . 'inc/modules/home/knx-location-detector.js?v=' . KNX_VERSION) . '" defer></script>';
-    }
-
-    if (!function_exists('knx_get_brand_logo')) {
-        function knx_get_brand_logo() {
-            $upload = wp_upload_dir();
-            $custom = $upload['basedir'] . '/our-local-collective-logo.svg';
-            if (file_exists($custom)) {
-                return $upload['baseurl'] . '/our-local-collective-logo.svg';
-            }
-            return KNX_URL . 'assets/default-logo.svg';
-        }
     }
     ?>
 
@@ -60,7 +43,7 @@ function knx_render_navbar() {
       <div class="knx-nav__inner">
         <!-- Logo -->
         <a href="<?php echo esc_url(site_url('/')); ?>" class="knx-nav__brand">
-          <span class="knx-nav__logo">🛒</span>
+          <span class="knx-nav__logo">馃崈</span>
           <span class="knx-nav__brand-text">Kingdom Nexus</span>
         </a>
 
@@ -91,9 +74,9 @@ function knx_render_navbar() {
                 <span class="knx-nav__username-text"><?php echo esc_html($username); ?></span>
               </button>
             <?php else: ?>
-              <button class="knx-nav__username-btn" id="knxAccountToggle" type="button" aria-haspopup="dialog" aria-controls="knxAccountDrawer" aria-expanded="false">
+              <div class="knx-nav__username-btn">
                 <span class="knx-nav__username-text"><?php echo esc_html($username); ?></span>
-              </button>
+              </div>
             <?php endif; ?>
 
             <form method="post" class="knx-nav__logout knx-nav__logout--desktop">
@@ -120,59 +103,19 @@ function knx_render_navbar() {
     </nav>
 
     <?php if ($is_admin): ?>
-      <!-- ===== Admin Sidebar with Overlay ===== -->
       <div class="knx-admin-overlay" id="knxAdminOverlay"></div>
-      <aside class="knx-admin-sidebar" id="knxAdminSidebar">
-        <header class="knx-admin-sidebar__header">
-          <a href="<?php echo esc_url(site_url('/dashboard')); ?>" class="knx-admin-sidebar__logo">
-            <i class="fas fa-home"></i>
-          </a>
-          <button id="knxAdminClose" class="knx-admin-sidebar__close" aria-label="Close admin menu" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </header>
-        <nav class="knx-admin-sidebar__nav">
-          <?php
-          // Admin menu links - only show if page exists and is published
-          $admin_links = [
-            ['slug' => 'dashboard', 'icon' => 'chart-line', 'label' => 'Dashboard'],
-            ['slug' => 'hubs', 'icon' => 'store', 'label' => 'Hubs'],
-            ['slug' => 'menus', 'icon' => 'utensils', 'label' => 'Menus'],
-            ['slug' => 'hub-categories', 'icon' => 'list', 'label' => 'Hub Categories'],
-            ['slug' => 'drivers', 'icon' => 'car', 'label' => 'Drivers'],
-            ['slug' => 'customers', 'icon' => 'users', 'label' => 'Customers'],
-            ['slug' => 'cities', 'icon' => 'city', 'label' => 'Cities'],
-            ['slug' => 'settings', 'icon' => 'cog', 'label' => 'Settings'],
-          ];
-
-          foreach ($admin_links as $link) {
-            $page = get_page_by_path($link['slug']);
-            if ($page && $page->post_status === 'publish') {
-              $url = esc_url(site_url('/' . $link['slug']));
-              $icon = esc_attr($link['icon']);
-              $label = esc_html($link['label']);
-              echo '<a href="' . $url . '" class="knx-admin-sidebar__link">';
-              echo '<i class="fas fa-' . $icon . '"></i>';
-              echo '<span>' . $label . '</span>';
-              echo '</a>';
-            }
-          }
-          ?>
-        </nav>
-      </aside>
+      <div class="knx-admin-sidebar" id="knxAdminSidebar"> ... <!-- (igual que ya tienes) --> </div>
     <?php endif; ?>
 
     <!-- ===== Cart Drawer (derecha, sin overlay) ===== -->
     <aside class="knx-cart-drawer" id="knxCartDrawer" role="dialog" aria-modal="true" aria-labelledby="knxCartTitle">
       <header class="knx-cart-drawer__header">
         <h3 id="knxCartTitle">Your Cart</h3>
-        <button type="button" class="knx-cart-drawer__close" id="knxCartClose" aria-label="Close cart">×</button>
+        <button type="button" class="knx-cart-drawer__close" id="knxCartClose" aria-label="Close cart">脳</button>
       </header>
 
       <div class="knx-cart-drawer__body" id="knxCartItems">
-        <!-- Items renderizados via JS (solo summary del menú, sin fees) -->
+        <!-- Items renderizados via JS (solo summary del men煤, sin fees) -->
       </div>
 
       <footer class="knx-cart-drawer__footer">
@@ -184,9 +127,4 @@ function knx_render_navbar() {
       </footer>
     </aside>
     <?php
-}
-
-/**
- * Hook navbar to wp_body_open
- */
-add_action('wp_body_open', 'knx_render_navbar', 5);
+});

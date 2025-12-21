@@ -12,7 +12,7 @@ add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/check-coverage', [
         'methods'  => 'POST',
         'callback' => 'knx_api_check_coverage',
-        'permission_callback' => knx_permission_public()
+        'permission_callback' => '__return_true'
     ]);
 });
 

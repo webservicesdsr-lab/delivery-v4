@@ -40,13 +40,21 @@ function knx_get_session() {
  * Require a minimum role hierarchy.
  * Returns the session object or false if unauthorized.
  */
-function knx_require_role($role = 'customer') {
+function knx_require_role($role = 'user') {
     $session = knx_get_session();
     if (!$session) {
         return false;
     }
 
-    $hierarchy = knx_get_role_hierarchy();
+    $hierarchy = [
+        'user'           => 1,
+        'customer'       => 1,
+        'menu_uploader'  => 2,
+        'hub_management' => 3,
+        'manager'        => 4,
+        'super_admin'    => 5
+    ];
+
     $user_role = $session->role;
 
     if (!isset($hierarchy[$user_role]) || !isset($hierarchy[$role])) {
@@ -64,7 +72,7 @@ function knx_require_role($role = 'customer') {
  * Guard a restricted page or shortcode.
  * If unauthorized, redirect safely to the login page.
  */
-function knx_guard($required_role = 'customer') {
+function knx_guard($required_role = 'user') {
     $session = knx_require_role($required_role);
 
     if (!$session) {
@@ -76,107 +84,10 @@ function knx_guard($required_role = 'customer') {
 }
 
 /**
- * Set admin context flag for the current request.
- * Must be called at the top of admin shortcodes/templates.
- */
-if (!function_exists('knx_set_admin_context')) {
-    function knx_set_admin_context() {
-        if (!defined('KNX_ADMIN_CONTEXT')) {
-            define('KNX_ADMIN_CONTEXT', true);
-        }
-    }
-}
-
-/**
- * Check if the current request is in admin context.
- * 
- * @return bool True if admin context is explicitly set
- */
-if (!function_exists('knx_is_admin_context')) {
-    function knx_is_admin_context() {
-        return defined('KNX_ADMIN_CONTEXT') && KNX_ADMIN_CONTEXT === true;
-    }
-}
-
-/**
- * Guard checkout pages with redirect preservation.
- * Redirects to /login?redirect=<current_url> if unauthorized.
- * 
- * @param string $required_role Minimum role required (default: 'customer')
- * @return object Session object if authorized
- */
-function knx_guard_checkout_page($required_role = 'customer') {
-    $session = knx_get_session();
-    
-    // No session: redirect to login with return URL (preserves query strings)
-    if (!$session) {
-        $current_uri = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '/');
-        
-        // Security: validate it's an internal path
-        // Allow: /checkout, /payment?token=abc, /checkout/confirm?id=123
-        // Block: //evil.com, http://evil.com, javascript:alert(1)
-        if (strpos($current_uri, '/') !== 0 || strpos($current_uri, '//') !== false) {
-            // Malicious redirect attempt - go to login without redirect
-            wp_safe_redirect(site_url('/login'));
-            exit;
-        }
-        
-        // URL-encode the full path+query (WordPress will decode it)
-        wp_safe_redirect(site_url('/login?redirect=' . urlencode($current_uri)));
-        exit;
-    }
-    
-    // Check role hierarchy
-    $allowed_roles = ['customer', 'manager', 'super_admin'];
-    if (!in_array($session->role, $allowed_roles)) {
-        wp_safe_redirect(site_url('/home'));
-        exit;
-    }
-    
-    return $session;
-}
-
-/**
- * Guard REST endpoints in checkout flow.
- * Returns 401/403 JSON if unauthorized (does NOT redirect).
- * 
- * @param string $required_role Minimum role required (default: 'customer')
- * @return WP_REST_Response|true Returns error response on failure, true on success
- */
-function knx_guard_checkout_api($required_role = 'customer') {
-    $session = knx_get_session();
-    
-    // No session: 401 unauthorized
-    if (!$session) {
-        return new WP_REST_Response([
-            'success' => false,
-            'error'   => 'unauthorized',
-            'code'    => 'AUTH001',
-            'message' => 'You must be logged in to continue.'
-        ], 401);
-    }
-    
-    // Check role allowlist
-    $allowed_roles = ['customer', 'manager', 'super_admin'];
-    if (!in_array($session->role, $allowed_roles)) {
-        return new WP_REST_Response([
-            'success' => false,
-            'error'   => 'forbidden',
-            'code'    => 'AUTH002',
-            'message' => 'Your account role cannot access this feature.'
-        ], 403);
-    }
-    
-    return true;
-}
-
-/**
  * Secure logout handler.
  * Deletes the current session and clears the cookie.
- * 
- * @param bool $redirect Whether to perform automatic redirect (default: true)
  */
-function knx_logout_user($redirect = true) {
+function knx_logout_user() {
     global $wpdb;
     $sessions_table = $wpdb->prefix . 'knx_sessions';
 
@@ -190,24 +101,9 @@ function knx_logout_user($redirect = true) {
         setcookie('knx_session', '', time() - 3600, '/', '', is_ssl(), true);
     }
 
-    // Redirect only if not called from AJAX
-    if ($redirect) {
-        wp_safe_redirect(site_url('/login'));
-        exit;
-    }
-}
-
-/**
- * Invalidate all sessions for a specific user.
- * Use when password changes or account is compromised.
- * 
- * @param int $user_id The user ID to invalidate sessions for
- * @return int|false Number of sessions deleted or false on failure
- */
-function knx_invalidate_user_sessions($user_id) {
-    global $wpdb;
-    $sessions_table = $wpdb->prefix . 'knx_sessions';
-    return $wpdb->delete($sessions_table, ['user_id' => $user_id], ['%d']);
+    // Ensure user is redirected to home or login
+    wp_safe_redirect(site_url('/login'));
+    exit;
 }
 
 
