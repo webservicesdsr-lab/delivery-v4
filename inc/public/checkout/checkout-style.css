@@ -1,0 +1,359 @@
+/**
+ * ==========================================================
+ * Local Bites Checkout Style (Production)
+ * Minimal, modern, Stripe-inspired — NO SHADOWS VERSION
+ * Scoped to #knx-checkout
+ * Cleans Hello Elementor garbage and protects layout
+ * Only buttons have hover color change — nothing else.
+ * ==========================================================
+ */
+
+/* ==========================================================
+   GLOBAL SCOPE RESET
+========================================================== */
+
+#knx-checkout,
+#knx-checkout * {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#knx-checkout {
+  max-width: 1120px;
+  margin: 24px auto 48px auto;
+  padding: 0 16px;
+  color: #111827;
+}
+
+/* Neutralizar cualquier hover del theme */
+#knx-checkout a,
+#knx-checkout button {
+  text-decoration: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+#knx-checkout a:hover,
+#knx-checkout button:hover {
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.knx-co-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.knx-co-header__title h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.knx-co-header__subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.knx-co-header__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 13px;
+}
+
+.knx-co-header__user {
+  color: #4b5563;
+}
+
+.knx-co-header__link {
+  font-size: 13px;
+  color: #0b793a;
+}
+
+/* No hover fancy */
+.knx-co-header__link:hover {
+  color: #0b793a;
+}
+
+/* ==========================================================
+   GRID LAYOUT
+========================================================== */
+
+.knx-co-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+/* ==========================================================
+   CARDS — NO SHADOWS
+========================================================== */
+
+.knx-co-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  padding: 16px 18px;
+}
+
+.knx-co-card__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.knx-co-card__head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.knx-co-empty {
+  padding: 12px 4px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.knx-co-empty p {
+  margin: 0 0 12px 0;
+}
+
+/* ==========================================================
+   ITEMS LIST
+========================================================== */
+
+.knx-co-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.knx-co-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.knx-co-item__img {
+  width: 68px;
+  height: 68px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.knx-co-item__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.knx-co-item__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.knx-co-item__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.knx-co-item__price {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.knx-co-item__mods {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ==========================================================
+   TOTALS + DISCLAIMER
+========================================================== */
+
+.knx-co-totals {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.knx-co-totals__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.knx-co-totals__row span {
+  color: #4b5563;
+}
+
+.knx-co-totals__row strong {
+  font-weight: 700;
+}
+
+/* Collapsible */
+.knx-co-disclaimer-toggle {
+  margin-top: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+  color: #374151;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.knx-co-disclaimer-toggle:hover {
+  background: #f3f4f6;
+}
+
+.knx-co-disclaimer {
+  font-size: 12px;
+  color: #6b7280;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 4px;
+  transition: max-height 0.18s ease;
+}
+
+.knx-co-disclaimer.is-open {
+  max-height: 160px;
+}
+
+/* ==========================================================
+   SIDEBAR
+========================================================== */
+
+.knx-co-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.knx-co-sidebar-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.knx-co-sidebar-row--muted span,
+.knx-co-sidebar-row--muted strong {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ==========================================================
+   BUTTONS (ONLY ELEMENT WITH HOVER)
+========================================================== */
+
+.knx-co-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.knx-co-btn--primary {
+  background: #0b793a;
+  color: #ffffff;
+}
+
+.knx-co-btn--primary:hover {
+  background: #08612f;
+  color: #ffffff;
+}
+
+.knx-co-btn--ghost {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.knx-co-btn--ghost:hover {
+  background: #e5e7eb;
+}
+
+.knx-co-btn--full {
+  width: 100%;
+}
+
+/* ==========================================================
+   ERROR BLOCK
+========================================================== */
+
+.knx-checkout-error {
+  background: #fdeaea;
+  border: 1px solid #f5c2c7;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #b91c1c;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 900px) {
+  .knx-co-layout {
+    grid-template-columns: 1fr;
+  }
+  .knx-co-sidebar {
+    order: -1;
+  }
+  .knx-co-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  #knx-checkout {
+    margin-top: 16px;
+  }
+  .knx-co-card {
+    padding: 12px;
+  }
+  .knx-co-item {
+    grid-template-columns: 1fr;
+  }
+  .knx-co-item__img {
+    width: 100%;
+    height: 160px;
+  }
+}

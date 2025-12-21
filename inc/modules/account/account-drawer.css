@@ -1,0 +1,121 @@
+html.knx-drawer-lock,
+html.knx-drawer-lock body {
+  overflow: hidden;
+}
+
+.knx-account-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+  z-index: 9998;
+}
+
+.knx-account-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.knx-account-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: min(360px, 92vw);
+  background: #fff;
+  transform: translateX(-110%);
+  transition: transform .2s ease;
+  z-index: 9999;
+  box-shadow: 18px 0 40px rgba(0,0,0,.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.knx-account-drawer.is-open {
+  transform: translateX(0);
+}
+
+.knx-account-drawer__header {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.knx-account-drawer__header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.knx-account-drawer__sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.knx-account-drawer__close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+.knx-account-drawer__close:hover {
+  background: rgba(0,0,0,.06);
+}
+
+.knx-account-drawer__body {
+  padding: 12px 10px 18px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.knx-account-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 700;
+  border: 1px solid #eee;
+  background: #fff;
+}
+
+.knx-account-link:hover {
+  background: #f9fafb;
+}
+
+.knx-account-divider {
+  height: 1px;
+  background: #eee;
+  margin: 8px 2px;
+}
+
+.knx-account-logout__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: #fff;
+  color: #b91c1c;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.knx-account-logout__btn:hover {
+  background: #fef2f2;
+}

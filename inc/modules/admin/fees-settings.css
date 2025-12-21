@@ -1,0 +1,153 @@
+.knx-fees-settings-wrapper {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.knx-fees-header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.knx-fees-header h2 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 28px;
+}
+
+.knx-subtitle {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.knx-settings-section {
+    margin-bottom: 35px;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 6px;
+}
+
+.knx-settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 18px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.knx-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.knx-form-group {
+    margin-bottom: 15px;
+}
+
+.knx-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.knx-form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.knx-form-group input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.knx-form-group small {
+    display: block;
+    margin-top: 6px;
+    color: #999;
+    font-size: 12px;
+}
+
+.knx-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.knx-btn-primary {
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.1s;
+}
+
+.knx-btn-primary:hover {
+    background: #45a049;
+}
+
+.knx-btn-primary:active {
+    transform: scale(0.98);
+}
+
+.knx-btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.knx-loader {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 16px;
+}
+
+.knx-error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+    border-left: 4px solid #c62828;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .knx-fees-settings-wrapper {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .knx-fees-header h2 {
+        font-size: 24px;
+    }
+    
+    .knx-settings-section {
+        padding: 20px;
+    }
+    
+    .knx-form-row {
+        grid-template-columns: 1fr;
+    }
+}
