@@ -13,7 +13,7 @@ add_action('wp_body_open', function () {
     $private_slugs = [
         'dashboard','basic-dashboard','advanced-dashboard',
         'hubs','edit-hub','edit-hub-items','edit-item-categories',
-        'drivers','customers','cities','settings','menus','hub-categories'
+        'drivers','customers','cities','settings','menus','hub-categories', 'knx-cities'
     ];
     if (in_array($slug, $private_slugs, true)) return;
 
@@ -31,7 +31,7 @@ add_action('wp_body_open', function () {
     echo '<link rel="stylesheet" href="' . esc_url(KNX_URL . 'inc/modules/cart/cart-drawer.css?v=' . KNX_VERSION) . '">';
     echo '<script src="' . esc_url(KNX_URL . 'inc/modules/cart/cart-drawer.js?v=' . KNX_VERSION) . '" defer></script>';
 
-    // Detector de ubicación solo en explore
+    // Detector de ubicacion solo en explore
     if ($slug === 'explore-hubs') {
       echo '<link rel="stylesheet" href="' . esc_url(KNX_URL . 'inc/modules/home/knx-location-modal.css?v=' . KNX_VERSION) . '">';
       echo '<script src="' . esc_url(KNX_URL . 'inc/modules/home/knx-location-detector.js?v=' . KNX_VERSION) . '" defer></script>';

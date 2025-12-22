@@ -24,6 +24,7 @@ function knx_render_sidebar() {
         'drivers',
         'customers',
         'cities',
+        'knx-cities',
         'settings',
         'edit-hub-items',
         'edit-item-categories'
