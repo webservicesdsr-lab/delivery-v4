@@ -167,7 +167,7 @@
 .knx-btn--primary:hover,
 .knx-btn--primary:focus,
 .knx-btn--primary:active{
-  background: #0b793a; /* lock */
+  background: #0b793a; 
   color:#fff !important;
 }
 

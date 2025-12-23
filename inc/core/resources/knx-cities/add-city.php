@@ -13,9 +13,8 @@ if (!defined('ABSPATH')) exit;
  * - knx_nonce
  *
  * Security:
- * - Session required
- * - Role: super_admin ONLY
- * - Nonce required
+ * - Route-level: session + super_admin (permission_callback)
+ * - Handler: nonce + duplicate prevention
  * - Wrapped with knx_rest_wrap
  * ==========================================================
  */
@@ -27,7 +26,16 @@ add_action('rest_api_init', function () {
         'callback' => function (WP_REST_Request $request) {
             return knx_rest_wrap('knx_v2_add_city')($request);
         },
-        'permission_callback' => '__return_true',
+
+        // Anti-bot: block unauth/role BEFORE handler runs
+        'permission_callback' => function () {
+            if (function_exists('knx_rest_permission_roles')) {
+                $cb = knx_rest_permission_roles(['super_admin']);
+                return $cb();
+            }
+            // Fallback (should not happen if guard is loaded)
+            return new WP_Error('knx_forbidden', 'Forbidden', ['status' => 403]);
+        },
     ]);
 });
 
@@ -35,7 +43,7 @@ function knx_v2_add_city(WP_REST_Request $request) {
     global $wpdb;
 
     /* ---------------------------
-     * Session + role
+     * Session + role (defense-in-depth)
      * --------------------------- */
     $session = knx_rest_require_session();
     if ($session instanceof WP_REST_Response) return $session;

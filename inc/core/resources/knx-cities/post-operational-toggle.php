@@ -14,10 +14,8 @@ if (!defined('ABSPATH')) exit;
  * - knx_nonce
  *
  * Security:
- * - Session required
- * - Role required (super_admin | manager)
- * - Nonce required
- * - Manager scope enforced
+ * - Route-level: session + (super_admin | manager)
+ * - Handler: nonce + manager scope enforcement
  * - Soft-delete respected
  * ==========================================================
  */
@@ -27,15 +25,19 @@ add_action('rest_api_init', function () {
     register_rest_route('knx/v2', '/cities/operational-toggle', [
         'methods'  => 'POST',
 
-        // IMPORTANT:
-        // Do NOT execute knx_rest_wrap at registration time.
-        // Wrap it lazily so WordPress actually registers the route.
+        // Lazy wrapper execution
         'callback' => function (WP_REST_Request $request) {
             return knx_rest_wrap('knx_v2_city_operational_toggle')($request);
         },
 
-        // Security is enforced INSIDE the handler
-        'permission_callback' => '__return_true',
+        // Anti-bot: block unauth/role BEFORE handler runs
+        'permission_callback' => function () {
+            if (function_exists('knx_rest_permission_roles')) {
+                $cb = knx_rest_permission_roles(['super_admin', 'manager']);
+                return $cb();
+            }
+            return new WP_Error('knx_forbidden', 'Forbidden', ['status' => 403]);
+        },
     ]);
 });
 
@@ -46,7 +48,7 @@ function knx_v2_city_operational_toggle(WP_REST_Request $request) {
     global $wpdb;
 
     /* --------------------------------------------------
-     * 1. Require session
+     * 1. Require session (defense-in-depth)
      * -------------------------------------------------- */
     $session = knx_rest_require_session();
     if ($session instanceof WP_REST_Response) {
@@ -54,7 +56,7 @@ function knx_v2_city_operational_toggle(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 2. Require role
+     * 2. Require role (defense-in-depth)
      * -------------------------------------------------- */
     $roleCheck = knx_rest_require_role($session, ['super_admin', 'manager']);
     if ($roleCheck instanceof WP_REST_Response) {
@@ -82,7 +84,7 @@ function knx_v2_city_operational_toggle(WP_REST_Request $request) {
         return knx_rest_error('Invalid parameters', 400);
     }
 
-    $operational = (int) $operational;
+    $operational  = (int) $operational;
     $cities_table = $wpdb->prefix . 'knx_cities';
 
     /* --------------------------------------------------
@@ -103,7 +105,7 @@ function knx_v2_city_operational_toggle(WP_REST_Request $request) {
     /* --------------------------------------------------
      * 6. Manager scope enforcement
      * -------------------------------------------------- */
-    if ($session->role === 'manager') {
+    if (($session->role ?? '') === 'manager') {
 
         $hubs_table = $wpdb->prefix . 'knx_hubs';
         $user_id    = absint($session->user_id ?? 0);

@@ -13,26 +13,28 @@ if (!defined('ABSPATH')) exit;
  * - knx_nonce (string)
  *
  * Security:
- * - Session required
- * - Role: super_admin ONLY
- * - Nonce required
+ * - Route-level permission_callback (anti-bot): super_admin only
+ * - Session required (handler)
+ * - Role: super_admin ONLY (handler)
+ * - Nonce required (handler)
  * - Soft delete enforced
  * - Blocks delete if city has hubs
+ * - Wrapped with knx_rest_wrap (normalized responses)
  * ==========================================================
  */
 
 add_action('rest_api_init', function () {
 
     register_rest_route('knx/v2', '/cities/delete', [
-        'methods'             => 'POST',
+        'methods'  => 'POST',
 
         // Lazy wrapper execution (required)
         'callback' => function (WP_REST_Request $request) {
             return knx_rest_wrap('knx_v2_delete_city')($request);
         },
 
-        // Security handled inside
-        'permission_callback' => '__return_true',
+        // Route-level block (anti-bot) — relies on knx-rest-guard.php (128 lines)
+        'permission_callback' => knx_rest_permission_roles(['super_admin']),
     ]);
 });
 
@@ -43,7 +45,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     global $wpdb;
 
     /* --------------------------------------------------
-     * 1. Require session
+     * 1) Require session
      * -------------------------------------------------- */
     $session = knx_rest_require_session();
     if ($session instanceof WP_REST_Response) {
@@ -51,7 +53,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 2. Require super_admin role
+     * 2) Require super_admin role
      * -------------------------------------------------- */
     $roleCheck = knx_rest_require_role($session, ['super_admin']);
     if ($roleCheck instanceof WP_REST_Response) {
@@ -59,7 +61,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 3. Verify nonce
+     * 3) Verify nonce
      * -------------------------------------------------- */
     $nonceCheck = knx_rest_verify_nonce(
         $request->get_param('knx_nonce'),
@@ -70,7 +72,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 4. Validate input
+     * 4) Validate input
      * -------------------------------------------------- */
     $city_id = absint($request->get_param('city_id'));
     if (!$city_id) {
@@ -81,10 +83,9 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     $hubs_table   = $wpdb->prefix . 'knx_hubs';
 
     /* --------------------------------------------------
-     * 5. Ensure required columns exist
+     * 5) Ensure required columns exist
      * -------------------------------------------------- */
-    if (!function_exists('knx_v2_column_exists') ||
-        !knx_v2_column_exists($cities_table, 'deleted_at')) {
+    if (!knx_v2_column_exists($cities_table, 'deleted_at')) {
         return knx_rest_error(
             'Missing deleted_at column. Run DB migration first.',
             500
@@ -92,7 +93,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 6. Ensure city exists & not already deleted
+     * 6) Ensure city exists & not already deleted
      * -------------------------------------------------- */
     $city = $wpdb->get_row($wpdb->prepare("
         SELECT id
@@ -107,7 +108,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 7. Block delete if city has hubs
+     * 7) Block delete if city has hubs
      * -------------------------------------------------- */
     $hub_count = (int) $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM {$hubs_table} WHERE city_id = %d",
@@ -123,7 +124,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 8. Soft delete city
+     * 8) Soft delete city
      * -------------------------------------------------- */
     $update_data = [
         'deleted_at' => current_time('mysql'),
@@ -151,7 +152,7 @@ function knx_v2_delete_city(WP_REST_Request $request) {
     }
 
     /* --------------------------------------------------
-     * 9. Success
+     * 9) Success
      * -------------------------------------------------- */
     return knx_rest_response(
         true,
@@ -161,4 +162,17 @@ function knx_v2_delete_city(WP_REST_Request $request) {
         ],
         200
     );
+}
+
+/**
+ * Column existence helper (local, guarded to avoid redeclare fatals).
+ */
+if (!function_exists('knx_v2_column_exists')) {
+    function knx_v2_column_exists($table, $column) {
+        global $wpdb;
+        $col = $wpdb->get_var(
+            $wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", $column)
+        );
+        return !empty($col);
+    }
 }

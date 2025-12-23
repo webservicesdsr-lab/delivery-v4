@@ -123,7 +123,6 @@ add_action('plugins_loaded', function() {
      * RESOURCES — KNX CITIES (SEALED)
      * ====================================================== */
 knx_require('inc/core/resources/knx-cities/get-cities.php');
-knx_require('inc/core/resources/knx-cities/knx-cities.php');
 knx_require('inc/core/resources/knx-cities/post-operational-toggle.php');
 knx_require('inc/core/resources/knx-cities/add-city.php');
 knx_require('inc/core/resources/knx-cities/delete-city.php'); 

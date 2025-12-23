@@ -12,8 +12,9 @@ if (!defined('ABSPATH')) exit;
  * - GET /wp-json/knx/v2/cities       (alias)
  *
  * Security:
- * - Session required
- * - Role-based access
+ * - Route-level permission_callback (anti-bot): super_admin | manager
+ * - Session required (handler)
+ * - Role-based access (handler)
  * - Soft-delete aware
  * - Wrapped with knx_rest_wrap
  * ==========================================================
@@ -22,21 +23,25 @@ if (!defined('ABSPATH')) exit;
 add_action('rest_api_init', function () {
 
     register_rest_route('knx/v2', '/cities/get', [
-        'methods'             => 'GET',
-        'callback'            => knx_rest_wrap('knx_v2_get_cities'),
-        'permission_callback' => '__return_true', // Guarded internally
+        'methods'  => 'GET',
+        'callback' => function (WP_REST_Request $request) {
+            return knx_rest_wrap('knx_v2_get_cities')($request);
+        },
+        'permission_callback' => knx_rest_permission_roles(['super_admin', 'manager']),
     ]);
 
     // Alias (temporary, safe)
     register_rest_route('knx/v2', '/cities', [
-        'methods'             => 'GET',
-        'callback'            => knx_rest_wrap('knx_v2_get_cities'),
-        'permission_callback' => '__return_true',
+        'methods'  => 'GET',
+        'callback' => function (WP_REST_Request $request) {
+            return knx_rest_wrap('knx_v2_get_cities')($request);
+        },
+        'permission_callback' => knx_rest_permission_roles(['super_admin', 'manager']),
     ]);
 });
 
 /**
- * GET Cities handler (wrapped)
+ * GET Cities handler.
  */
 function knx_v2_get_cities(WP_REST_Request $request) {
     global $wpdb;
@@ -68,8 +73,8 @@ function knx_v2_get_cities(WP_REST_Request $request) {
     $has_state          = knx_v2_column_exists($cities_table, 'state');
     $has_country        = knx_v2_column_exists($cities_table, 'country');
 
-    $where_not_deleted = $has_deleted_at ? "c.deleted_at IS NULL" : "1=1";
-    $select_operational = $has_is_operational ? "c.is_operational" : "1 AS is_operational";
+    $where_not_deleted   = $has_deleted_at ? "c.deleted_at IS NULL" : "1=1";
+    $select_operational  = $has_is_operational ? "c.is_operational" : "1 AS is_operational";
 
     /* -----------------------------------------
      * SUPER ADMIN → all cities
@@ -103,10 +108,7 @@ function knx_v2_get_cities(WP_REST_Request $request) {
     if ($role === 'manager') {
 
         if (!knx_v2_column_exists($hubs_table, 'manager_user_id')) {
-            return knx_rest_error(
-                'Manager city assignment not configured',
-                403
-            );
+            return knx_rest_error('Manager city assignment not configured', 403);
         }
 
         $user_id = isset($session->user_id) ? absint($session->user_id) : 0;
@@ -139,12 +141,14 @@ function knx_v2_get_cities(WP_REST_Request $request) {
 }
 
 /**
- * Column existence helper (local)
+ * Column existence helper (local, guarded to avoid redeclare fatals).
  */
-function knx_v2_column_exists($table, $column) {
-    global $wpdb;
-    $col = $wpdb->get_var(
-        $wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", $column)
-    );
-    return !empty($col);
+if (!function_exists('knx_v2_column_exists')) {
+    function knx_v2_column_exists($table, $column) {
+        global $wpdb;
+        $col = $wpdb->get_var(
+            $wpdb->prepare("SHOW COLUMNS FROM {$table} LIKE %s", $column)
+        );
+        return !empty($col);
+    }
 }

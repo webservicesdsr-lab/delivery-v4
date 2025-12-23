@@ -1,9 +1,13 @@
 .
 ├── .DS_Store
+├── AGENT-CHARTER.md
 ├── CURRENT-DB.sql
 ├── README.md
 ├── backup
-│   └── .DS_Store
+│   ├── .DS_Store
+│   ├── cities-v2-sealed-guarded-ui-final.zip
+│   └── knx-cities-v2-sealed-migrations-ready.zip
+├── current-status.md
 ├── inc
 │   ├── .DS_Store
 │   ├── core
@@ -48,6 +52,17 @@
 │   │   ├── db-install.php
 │   │   ├── edit-hub-closure.js
 │   │   ├── pages-installer.php
+│   │   ├── resources
+│   │   │   └── knx-cities
+│   │   │       ├── add-city.php
+│   │   │       ├── delete-city.php
+│   │   │       ├── get-cities.php
+│   │   │       ├── knx-cities.php
+│   │   │       └── post-operational-toggle.php
+│   │   ├── rest
+│   │   │   ├── knx-rest-guard.php
+│   │   │   ├── knx-rest-response.php
+│   │   │   └── knx-rest-wrapper.php
 │   │   └── session-cleaner.php
 │   ├── functions
 │   │   ├── delivery_zone_helper.php
@@ -116,6 +131,13 @@
 │   │   │   ├── edit-item.css
 │   │   │   ├── edit-item.js
 │   │   │   └── edit-item.php
+│   │   ├── knx-cities
+│   │   │   ├── knx-cities-delete-modal.css
+│   │   │   ├── knx-cities-delete-modal.js
+│   │   │   ├── knx-cities-delete-modal.php
+│   │   │   ├── knx-cities-script.js
+│   │   │   ├── knx-cities-shortcode.php
+│   │   │   └── knx-cities-style.css
 │   │   ├── navbar
 │   │   │   ├── navbar-render.php
 │   │   │   ├── navbar-script.js
@@ -157,4 +179,4 @@
 ├── kingdom-nexus.php
 └── project-tree.txt
 
-26 directories, 132 files
+30 directories, 150 files
