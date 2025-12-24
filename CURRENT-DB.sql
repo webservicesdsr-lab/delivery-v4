@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 24-12-2025 a las 12:08:58
+-- Tiempo de generación: 24-12-2025 a las 14:41:26
 -- Versión del servidor: 8.0.43-34
 -- Versión de PHP: 8.3.26
 
@@ -148,17 +148,21 @@ INSERT INTO `fyN_knx_cities` (`id`, `name`, `state`, `country`, `status`, `is_op
 CREATE TABLE `fyN_knx_delivery_rates` (
   `id` bigint UNSIGNED NOT NULL,
   `city_id` bigint UNSIGNED NOT NULL,
-  `from_miles` decimal(5,2) DEFAULT '0.00',
-  `to_miles` decimal(5,2) DEFAULT NULL,
-  `price` decimal(10,2) DEFAULT '0.00',
-  `zone_name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
-  `base_rate` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `per_mile_rate` decimal(10,2) DEFAULT '0.00',
-  `min_order` decimal(10,2) DEFAULT '0.00',
-  `status` enum('active','inactive') COLLATE utf8mb4_unicode_520_ci DEFAULT 'active',
+  `flat_rate` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `rate_per_distance` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `distance_unit` enum('mile','kilometer') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'mile',
+  `status` enum('active','inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci DEFAULT 'active',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+
+--
+-- Volcado de datos para la tabla `fyN_knx_delivery_rates`
+--
+
+INSERT INTO `fyN_knx_delivery_rates` (`id`, `city_id`, `flat_rate`, `rate_per_distance`, `distance_unit`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 4.25, 0.80, 'mile', 'active', '2025-12-24 20:27:29', NULL),
+(2, 2, 0.00, 0.00, 'mile', 'active', '2025-12-24 20:27:29', NULL);
 
 -- --------------------------------------------------------
 
@@ -233,7 +237,7 @@ CREATE TABLE `fyN_knx_hubs` (
 
 INSERT INTO `fyN_knx_hubs` (`id`, `name`, `slug`, `tagline`, `city_id`, `category_id`, `address`, `latitude`, `longitude`, `delivery_radius`, `delivery_zone_type`, `delivery_available`, `pickup_available`, `phone`, `email`, `logo_url`, `hero_img`, `type`, `rating`, `cuisines`, `status`, `hours_monday`, `hours_tuesday`, `hours_wednesday`, `hours_thursday`, `hours_friday`, `hours_saturday`, `hours_sunday`, `closure_start`, `closure_until`, `closure_reason`, `timezone`, `currency`, `tax_rate`, `min_order`, `created_at`, `updated_at`, `is_featured`) VALUES
 (1, 'Chef Vaughn\'s Kitchen', 'chefvaughnskitchen', NULL, 1, 1, '670 West Station Street, IL United States, Illinois, 60964', 41.0248430, -87.7225890, 5.00, 'radius', 1, 1, '+1 815-386-3652', 'chefvaughnskitchen_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/1/20251220-153125-7dd96.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', NULL, NULL, NULL, 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-21 04:17:03', '2025-12-20 15:31:25', 1),
-(2, 'Burgers & Beer', 'burgers-beer', NULL, 1, 2, '756 W Jeffery St, Kankakee, Illinois, Estados Unidos', 41.1200000, -87.8600000, 5.00, 'radius', 1, 1, '+1 815-523-7144', 'burgersnbeers_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/2/20251121-183352-d8736.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '', '2025-11-25', '2025-11-25 22:45:00', 'Spot Remodeling', 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-22 00:23:07', '2025-12-20 00:37:11', 1);
+(2, 'Burgers & Beer', 'burgers-beer', NULL, 1, 2, '756 W Jeffery St, Kankakee, Illinois, Estados Unidos', 41.1200000, -87.8600000, 5.00, 'radius', 1, 1, '+1 815-523-7144', 'burgersnbeers_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/2/20251121-183352-d8736.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '', '', '2025-11-25', '2025-11-25 22:45:00', 'Spot Remodeling', 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-22 00:23:07', '2025-12-24 20:32:24', 1);
 
 -- --------------------------------------------------------
 
@@ -483,7 +487,8 @@ CREATE TABLE `fyN_knx_sessions` (
 
 INSERT INTO `fyN_knx_sessions` (`id`, `user_id`, `token`, `ip_address`, `user_agent`, `expires_at`, `created_at`) VALUES
 (39, 1, '68c91cad5c53778bf158da29593926ef1d1f93c832233c7ca33e210a8258c73d', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-24 20:11:45', '2025-12-23 20:11:45'),
-(40, 1, 'e8c5174274dc540b78962cca9839be8a91b66c76b9b77d83ecbc72f4f4c36ba7', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-24 20:12:51', '2025-12-23 20:12:51');
+(40, 1, 'e8c5174274dc540b78962cca9839be8a91b66c76b9b77d83ecbc72f4f4c36ba7', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-24 20:12:51', '2025-12-23 20:12:51'),
+(41, 1, 'faed6d2782a17d2f6c87a90b5465d3da85fc5c3657309a6a9222e531aa60a0f8', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-25 20:22:13', '2025-12-24 20:22:13');
 
 -- --------------------------------------------------------
 
@@ -581,7 +586,7 @@ ALTER TABLE `fyN_knx_cities`
 --
 ALTER TABLE `fyN_knx_delivery_rates`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `city_id` (`city_id`),
+  ADD UNIQUE KEY `unique_city` (`city_id`),
   ADD KEY `status` (`status`);
 
 --
@@ -776,7 +781,7 @@ ALTER TABLE `fyN_knx_cities`
 -- AUTO_INCREMENT de la tabla `fyN_knx_delivery_rates`
 --
 ALTER TABLE `fyN_knx_delivery_rates`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_delivery_zones`
@@ -860,7 +865,7 @@ ALTER TABLE `fyN_knx_preorders`
 -- AUTO_INCREMENT de la tabla `fyN_knx_sessions`
 --
 ALTER TABLE `fyN_knx_sessions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_settings`

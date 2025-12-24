@@ -5,6 +5,7 @@
 ├── README.md
 ├── backup
 │   ├── .DS_Store
+│   ├── cities-edit-v4-delivery-rates-A-sealed-ui-wired.zip
 │   ├── cities-v2-sealed-guarded-ui-final.zip
 │   └── knx-cities-v2-sealed-migrations-ready.zip
 ├── current-status.md
@@ -18,7 +19,6 @@
 │   │   ├── api-delete-hub.php
 │   │   ├── api-delete-item-category.php
 │   │   ├── api-delivery-rates.php
-│   │   ├── api-edit-city.php
 │   │   ├── api-edit-hub-identity.php
 │   │   ├── api-edit-hub-location.php
 │   │   ├── api-explore-hubs.php
@@ -55,10 +55,12 @@
 │   │   ├── resources
 │   │   │   └── knx-cities
 │   │   │       ├── add-city.php
+│   │   │       ├── api-edit-city.php
 │   │   │       ├── delete-city.php
 │   │   │       ├── get-cities.php
-│   │   │       ├── knx-cities.php
-│   │   │       └── post-operational-toggle.php
+│   │   │       ├── get-delivery-rates.php
+│   │   │       ├── post-operational-toggle.php
+│   │   │       └── update-delivery-rates.php
 │   │   ├── rest
 │   │   │   ├── knx-rest-guard.php
 │   │   │   ├── knx-rest-response.php
@@ -137,7 +139,10 @@
 │   │   │   ├── knx-cities-delete-modal.php
 │   │   │   ├── knx-cities-script.js
 │   │   │   ├── knx-cities-shortcode.php
-│   │   │   └── knx-cities-style.css
+│   │   │   ├── knx-cities-style.css
+│   │   │   ├── knx-edit-city-script.js
+│   │   │   ├── knx-edit-city-style.css
+│   │   │   └── knx-edit-city.php
 │   │   ├── navbar
 │   │   │   ├── navbar-render.php
 │   │   │   ├── navbar-script.js
@@ -179,4 +184,4 @@
 ├── kingdom-nexus.php
 └── project-tree.txt
 
-30 directories, 150 files
+30 directories, 155 files

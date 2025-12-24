@@ -93,7 +93,7 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/api-delivery-rates.php');
     knx_require('inc/core/api-check-coverage.php');
 
-    knx_require('inc/core/api-hub-categories.php');
+    knx_require('inc/core/knx-hubs/api-hub-categories.php');
     knx_require('inc/core/api-hub-items.php');
     knx_require('inc/core/api-reorder-item.php');
     knx_require('inc/core/api-get-item-categories.php');
