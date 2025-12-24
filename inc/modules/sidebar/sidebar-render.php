@@ -23,7 +23,6 @@ function knx_render_sidebar() {
         'hub-categories',
         'drivers',
         'customers',
-        'cities',
         'knx-cities',
         'settings',
         'edit-hub-items',
@@ -63,7 +62,7 @@ function knx_render_sidebar() {
                 <li><a href="<?php echo site_url('/hub-categories'); ?>"><i class="fas fa-list"></i><span>Hub Categories</span></a></li>
                 <li><a href="<?php echo site_url('/drivers'); ?>"><i class="fas fa-car"></i><span>Drivers</span></a></li>
                 <li><a href="<?php echo site_url('/customers'); ?>"><i class="fas fa-users"></i><span>Customers</span></a></li>
-                <li><a href="<?php echo site_url('/cities'); ?>"><i class="fas fa-city"></i><span>Cities</span></a></li>
+                <li><a href="<?php echo site_url('/knx-cities'); ?>"><i class="fas fa-city"></i><span>Cities</span></a></li>
                 <li><a href="<?php echo site_url('/settings'); ?>"><i class="fas fa-cog"></i><span>Settings</span></a></li>
             </ul>
         </div>

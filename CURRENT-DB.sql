@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 18-12-2025 a las 14:19:12
+-- Tiempo de generación: 24-12-2025 a las 12:08:58
 -- Versión del servidor: 8.0.43-34
 -- Versión de PHP: 8.3.26
 
@@ -77,9 +77,10 @@ CREATE TABLE `fyN_knx_carts` (
 
 INSERT INTO `fyN_knx_carts` (`id`, `session_token`, `customer_id`, `hub_id`, `subtotal`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'knx_ccb8f434212c7819af62f2251', NULL, 1, 54.24, 'abandoned', '2025-12-07 00:21:15', '2025-12-08 09:24:06'),
-(2, 'knx_ccb8f434212c7819af62f2251', 1, 1, 18.08, 'active', '2025-12-08 16:55:27', '2025-12-09 17:17:04'),
-(3, 'knx_7e675ec516bb0819b13bf6d54', NULL, 1, 18.08, 'active', '2025-12-12 18:07:51', '2025-12-12 18:07:51'),
-(4, 'knx_da7345fe1331a19b15ca8a84', 2, 1, 18.08, 'active', '2025-12-13 03:39:16', '2025-12-14 18:35:07');
+(2, 'knx_ccb8f434212c7819af62f2251', 1, 1, 18.08, 'abandoned', '2025-12-08 16:55:27', '2025-12-21 02:51:25'),
+(3, 'knx_7e675ec516bb0819b13bf6d54', NULL, 1, 18.08, 'abandoned', '2025-12-12 18:07:51', '2025-12-21 02:51:25'),
+(4, 'knx_da7345fe1331a19b15ca8a84', 2, 1, 18.08, 'abandoned', '2025-12-13 03:39:16', '2025-12-21 02:51:25'),
+(5, 'knx_1d8e08266f930819b41eb534d', NULL, 1, 13.59, 'abandoned', '2025-12-21 17:18:20', '2025-12-22 05:58:09');
 
 -- --------------------------------------------------------
 
@@ -109,7 +110,8 @@ INSERT INTO `fyN_knx_cart_items` (`id`, `cart_id`, `item_id`, `name_snapshot`, `
 (10, 1, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 18.08, 18.08, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 2, \"name\": \"Large\", \"price_adjustment\": 4.49}], \"required\": true}]', '2025-12-07 16:23:59'),
 (14, 2, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 18.08, 18.08, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 2, \"name\": \"Large\", \"price_adjustment\": 4.49}], \"required\": true}]', '2025-12-09 23:16:07'),
 (15, 3, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 18.08, 18.08, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 2, \"name\": \"Large\", \"price_adjustment\": 4.49}], \"required\": true}]', '2025-12-12 18:07:51'),
-(18, 4, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 18.08, 18.08, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 2, \"name\": \"Large\", \"price_adjustment\": 4.49}], \"required\": true}]', '2025-12-15 00:35:02');
+(18, 4, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 18.08, 18.08, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 2, \"name\": \"Large\", \"price_adjustment\": 4.49}], \"required\": true}]', '2025-12-15 00:35:02'),
+(19, 5, 1, 'Plain Alfredo Pasta', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-items/1/item_691f96caa14525.83076040.jpg', 1, 13.59, 13.59, '[{\"id\": 1, \"name\": \"Size\", \"type\": \"single\", \"options\": [{\"id\": 1, \"name\": \"Small\", \"price_adjustment\": 0}], \"required\": true}]', '2025-12-21 17:18:20');
 
 -- --------------------------------------------------------
 
@@ -123,17 +125,19 @@ CREATE TABLE `fyN_knx_cities` (
   `state` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `country` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT 'USA',
   `status` enum('active','inactive') COLLATE utf8mb4_unicode_520_ci DEFAULT 'active',
+  `is_operational` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
 -- Volcado de datos para la tabla `fyN_knx_cities`
 --
 
-INSERT INTO `fyN_knx_cities` (`id`, `name`, `state`, `country`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Kankakee County, IL', '', 'USA', 'active', '2025-11-21 03:58:51', '2025-12-13 16:38:24'),
-(2, 'Collin County, TX', '', 'USA', 'active', '2025-12-13 22:38:09', '2025-12-13 22:38:51');
+INSERT INTO `fyN_knx_cities` (`id`, `name`, `state`, `country`, `status`, `is_operational`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'Kankakee County, IL', '', 'USA', 'active', 1, '2025-11-21 03:58:51', '2025-12-24 23:28:23', NULL),
+(2, 'Collin County, TX', '', 'USA', 'active', 1, '2025-12-13 22:38:09', '2025-12-23 20:32:52', NULL);
 
 -- --------------------------------------------------------
 
@@ -228,8 +232,8 @@ CREATE TABLE `fyN_knx_hubs` (
 --
 
 INSERT INTO `fyN_knx_hubs` (`id`, `name`, `slug`, `tagline`, `city_id`, `category_id`, `address`, `latitude`, `longitude`, `delivery_radius`, `delivery_zone_type`, `delivery_available`, `pickup_available`, `phone`, `email`, `logo_url`, `hero_img`, `type`, `rating`, `cuisines`, `status`, `hours_monday`, `hours_tuesday`, `hours_wednesday`, `hours_thursday`, `hours_friday`, `hours_saturday`, `hours_sunday`, `closure_start`, `closure_until`, `closure_reason`, `timezone`, `currency`, `tax_rate`, `min_order`, `created_at`, `updated_at`, `is_featured`) VALUES
-(1, 'Chef Vaughn\'s Kitchen', 'chefvaughnskitchen', NULL, 1, 1, '670 West Station Street, IL United States, Illinois, 60964', 41.0248430, -87.7225890, 5.00, 'radius', 1, 1, '+1 815-386-3652', 'chefvaughnskitchen_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/1/20251120-232015-3d47d.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', NULL, NULL, NULL, 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-21 04:17:03', '2025-12-07 16:01:35', 1),
-(2, 'Burgers & Beer', 'burgers-beer', NULL, 1, 2, '756 W Jeffery St, Kankakee, Illinois, Estados Unidos', 41.1200000, -87.8600000, 5.00, 'radius', 1, 1, '+1 815-523-7144', 'burgersnbeers_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/2/20251121-183352-d8736.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '', '', '2025-11-25', '2025-11-25 22:45:00', 'Spot Remodeling', 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-22 00:23:07', '2025-11-25 19:36:52', 1);
+(1, 'Chef Vaughn\'s Kitchen', 'chefvaughnskitchen', NULL, 1, 1, '670 West Station Street, IL United States, Illinois, 60964', 41.0248430, -87.7225890, 5.00, 'radius', 1, 1, '+1 815-386-3652', 'chefvaughnskitchen_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/1/20251220-153125-7dd96.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:00\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', '[{\"open\":\"00:00\",\"close\":\"23:45\"}]', NULL, NULL, NULL, 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-21 04:17:03', '2025-12-20 15:31:25', 1),
+(2, 'Burgers & Beer', 'burgers-beer', NULL, 1, 2, '756 W Jeffery St, Kankakee, Illinois, Estados Unidos', 41.1200000, -87.8600000, 5.00, 'radius', 1, 1, '+1 815-523-7144', 'burgersnbeers_nexus@outlook.com', 'https://website-03f19273.oyw.wof.temporary.site/wp-content/uploads/knx-uploads/2/20251121-183352-d8736.jpg', NULL, 'Restaurant', 4.5, NULL, 'active', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '[{\"open\":\"11:00\",\"close\":\"20:30\"}]', '', '2025-11-25', '2025-11-25 22:45:00', 'Spot Remodeling', 'America/Chicago', 'USD', 20.00, 0.00, '2025-11-22 00:23:07', '2025-12-20 00:37:11', 1);
 
 -- --------------------------------------------------------
 
@@ -473,6 +477,14 @@ CREATE TABLE `fyN_knx_sessions` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
+--
+-- Volcado de datos para la tabla `fyN_knx_sessions`
+--
+
+INSERT INTO `fyN_knx_sessions` (`id`, `user_id`, `token`, `ip_address`, `user_agent`, `expires_at`, `created_at`) VALUES
+(39, 1, '68c91cad5c53778bf158da29593926ef1d1f93c832233c7ca33e210a8258c73d', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-24 20:11:45', '2025-12-23 20:11:45'),
+(40, 1, 'e8c5174274dc540b78962cca9839be8a91b66c76b9b77d83ecbc72f4f4c36ba7', '187.252.250.70', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-12-24 20:12:51', '2025-12-23 20:12:51');
+
 -- --------------------------------------------------------
 
 --
@@ -510,7 +522,8 @@ CREATE TABLE `fyN_knx_users` (
 
 INSERT INTO `fyN_knx_users` (`id`, `username`, `email`, `password`, `role`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'SuperAdmin', 'superadmin@email.com', '$2y$10$8/b00QhHe7gD/MuUkfPKdu3vBhOfUwspwiin11ycXUOQld4adztuO', 'super_admin', 'active', '2025-11-20 21:33:04', NULL),
-(2, 'danielsr', 'daniel_sr@email.com', '$2y$12$adZ6.FOQ8F5b69ljY0/yF.5Nbsb6/0fdsZqcYXppudqQoTZxaLUQq', 'customer', 'active', '2025-12-14 19:02:46', NULL);
+(2, 'danielsr', 'daniel_sr@email.com', '$2y$12$adZ6.FOQ8F5b69ljY0/yF.5Nbsb6/0fdsZqcYXppudqQoTZxaLUQq', 'customer', 'active', '2025-12-14 19:02:46', NULL),
+(3, 'KNXManager', 'manager@email.com', '$2y$12$uSl/BwdSliP9HXNkn2jYGOCV3s0eJ8qEktN55Xho20CPyqLJFO2qC', 'manager', 'active', '2025-12-22 19:59:49', NULL);
 
 --
 -- Índices para tablas volcadas
@@ -559,7 +572,9 @@ ALTER TABLE `fyN_knx_cart_items`
 ALTER TABLE `fyN_knx_cities`
   ADD PRIMARY KEY (`id`),
   ADD KEY `status` (`status`),
-  ADD KEY `name` (`name`);
+  ADD KEY `name` (`name`),
+  ADD KEY `idx_is_operational` (`is_operational`),
+  ADD KEY `idx_deleted_at` (`deleted_at`);
 
 --
 -- Indices de la tabla `fyN_knx_delivery_rates`
@@ -743,19 +758,19 @@ ALTER TABLE `fyN_knx_addon_groups`
 -- AUTO_INCREMENT de la tabla `fyN_knx_carts`
 --
 ALTER TABLE `fyN_knx_carts`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_cart_items`
 --
 ALTER TABLE `fyN_knx_cart_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_cities`
 --
 ALTER TABLE `fyN_knx_cities`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_delivery_rates`
@@ -845,7 +860,7 @@ ALTER TABLE `fyN_knx_preorders`
 -- AUTO_INCREMENT de la tabla `fyN_knx_sessions`
 --
 ALTER TABLE `fyN_knx_sessions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de la tabla `fyN_knx_settings`
@@ -857,7 +872,7 @@ ALTER TABLE `fyN_knx_settings`
 -- AUTO_INCREMENT de la tabla `fyN_knx_users`
 --
 ALTER TABLE `fyN_knx_users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas

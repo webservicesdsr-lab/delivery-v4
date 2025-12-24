@@ -89,12 +89,9 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/api-get-hub.php');
     knx_require('inc/core/api-hub-hours.php');
 
-    // Legacy Cities (NO TOCAR)
-    knx_require('inc/core/api-cities.php');
-    knx_require('inc/core/api-edit-city.php');
+    // Cities (supporting)
     knx_require('inc/core/api-delivery-rates.php');
     knx_require('inc/core/api-check-coverage.php');
-    knx_require('inc/core/api-get-cities.php');
 
     knx_require('inc/core/api-hub-categories.php');
     knx_require('inc/core/api-hub-items.php');
@@ -118,20 +115,23 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/api-hours-extension.php');
     knx_require('inc/core/api-delete-hub.php');
     knx_require('inc/core/api-update-hub-slug.php');
-    
+
     /* ======================================================
      * RESOURCES — KNX CITIES (SEALED)
      * ====================================================== */
-knx_require('inc/core/resources/knx-cities/get-cities.php');
-knx_require('inc/core/resources/knx-cities/post-operational-toggle.php');
-knx_require('inc/core/resources/knx-cities/add-city.php');
-knx_require('inc/core/resources/knx-cities/delete-city.php'); 
+    knx_require('inc/core/resources/knx-cities/api-edit-city.php');
+    knx_require('inc/core/resources/knx-cities/get-cities.php');
+    knx_require('inc/core/resources/knx-cities/post-operational-toggle.php');
+    knx_require('inc/core/resources/knx-cities/add-city.php');
+    knx_require('inc/core/resources/knx-cities/delete-city.php');
+    knx_require('inc/core/resources/knx-cities/get-delivery-rates.php');
+    knx_require('inc/core/resources/knx-cities/update-delivery-rates.php');
 
     /* ======================================================
      * MODULES — KNX CITIES (NEW UI)
      * ====================================================== */
     knx_require('inc/modules/knx-cities/knx-cities-shortcode.php');
-
+    knx_require('inc/modules/knx-cities/knx-edit-city.php');
 
     /* ======================================================
      * MENU (SEO)
@@ -152,9 +152,6 @@ knx_require('inc/core/resources/knx-cities/delete-city.php');
     knx_require('inc/modules/hubs/hubs-shortcode.php');
     knx_require('inc/modules/hubs/edit-hub-template.php');
     knx_require('inc/modules/hubs/edit-hub-identity.php');
-
-    knx_require('inc/modules/cities/cities-shortcode.php');
-    knx_require('inc/modules/cities/edit-city.php');
 
     knx_require('inc/modules/hub-categories/hub-categories-shortcode.php');
 
