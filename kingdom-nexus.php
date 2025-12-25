@@ -90,14 +90,6 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/api-delivery-rates.php');
     knx_require('inc/core/api-check-coverage.php');
 
-    knx_require('inc/core/api-hub-items.php');
-    knx_require('inc/core/api-reorder-item.php');
-    knx_require('inc/core/api-get-item-categories.php');
-    knx_require('inc/core/api-save-item-category.php');
-    knx_require('inc/core/api-reorder-item-category.php');
-    knx_require('inc/core/api-toggle-item-category.php');
-    knx_require('inc/core/api-delete-item-category.php');
-
     knx_require('inc/core/api-menu-read.php');
     knx_require('inc/core/api-cart.php');
 
@@ -126,6 +118,19 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/resources/knx-hubs/api-update-settings.php');
 
     /* ======================================================
+     * RESOURCES — KNX ITEMS (CANONICAL)
+     * ====================================================== */
+    knx_require('inc/core/resources/knx-items/api-get-item-categories.php');
+    knx_require('inc/core/resources/knx-items/api-save-item-category.php');
+    knx_require('inc/core/resources/knx-items/api-toggle-item-category.php');
+    knx_require('inc/core/resources/knx-items/api-delete-item-category.php');
+    knx_require('inc/core/resources/knx-items/api-reorder-item-category.php');
+    knx_require('inc/core/resources/knx-items/api-hub-items.php');
+    knx_require('inc/core/resources/knx-items/api-update-item.php');
+    knx_require('inc/core/resources/knx-items/api-reorder-item.php');
+    knx_require('inc/core/resources/knx-items/api-item-addons.php');
+
+    /* ======================================================
      * RESOURCES — KNX CITIES (SEALED)
      * ====================================================== */
     knx_require('inc/core/resources/knx-cities/api-edit-city.php');
@@ -149,11 +154,9 @@ add_action('plugins_loaded', function() {
     knx_require('inc/public/menu/menu-shortcode.php');
 
     /* ======================================================
-     * ITEMS
+     * KNX ITEMS (CANONICAL) - MODIFIERS
      * ====================================================== */
-    knx_require('inc/core/api-update-item.php');
-    knx_require('inc/core/api-modifiers.php');
-    knx_require('inc/core/api-item-addons.php');
+    knx_require('inc/core/resources/knx-items/api-modifiers.php');
 
     /* ======================================================
      * MODULES — LEGACY

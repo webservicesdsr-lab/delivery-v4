@@ -3,51 +3,42 @@ if (!defined('ABSPATH')) exit;
 
 /**
  * ==========================================================
- * Kingdom Nexus - API: Reorder Item Category (v1.2 Production)
+ * Kingdom Nexus - API: Reorder Item Category (v1.2 - Canonical)
  * ----------------------------------------------------------
  * ✅ 100% REST Real
  * ✅ Moves categories up/down automatically
  * ✅ Works with dynamic table prefix (Z7E_ / default)
  * ✅ Keeps sort_order sequence consistent
+ * Route: POST /wp-json/knx/v1/reorder-item-category
  * ==========================================================
  */
 
 add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/reorder-item-category', [
-        'methods'  => 'POST',
-        'callback' => 'knx_api_reorder_item_category',
-        'permission_callback' => '__return_true',
+        'methods'             => 'POST',
+        'callback'            => knx_rest_wrap('knx_api_reorder_item_category'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 });
 
 function knx_api_reorder_item_category(WP_REST_Request $r) {
     global $wpdb;
 
-    /** Detect correct table (portable) */
-    // Resolve categories table using knx naming
     $table = knx_items_categories_table();
 
-    /** Validate session */
-    $session = knx_get_session();
-    if (!$session) {
-        return knx_json_response(false, ['error' => 'unauthorized'], 403);
-    }
-
-    /** Sanitize input */
     $hub_id       = intval($r->get_param('hub_id'));
     $category_id  = intval($r->get_param('category_id'));
     $move         = sanitize_text_field($r->get_param('move'));
     $nonce        = sanitize_text_field($r->get_param('knx_nonce'));
 
     if (!$hub_id || !$category_id || !in_array($move, ['up', 'down'])) {
-        return knx_json_response(false, ['error' => 'invalid_request'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_request'], 400);
     }
 
     if (!wp_verify_nonce($nonce, 'knx_edit_hub_nonce')) {
-        return knx_json_response(false, ['error' => 'invalid_nonce'], 403);
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
     }
 
-    /** Get current category */
     $current = $wpdb->get_row($wpdb->prepare("
         SELECT id, sort_order 
         FROM $table 
@@ -56,14 +47,12 @@ function knx_api_reorder_item_category(WP_REST_Request $r) {
     ", $category_id, $hub_id));
 
     if (!$current) {
-        return knx_json_response(false, ['error' => 'category_not_found'], 404);
+        return new WP_REST_Response(['success' => false, 'error' => 'category_not_found'], 404);
     }
 
-    /** Determine direction */
     $operator = $move === 'up' ? '<' : '>';
     $order    = $move === 'up' ? 'DESC' : 'ASC';
 
-    /** Find the neighboring category */
     $neighbor = $wpdb->get_row($wpdb->prepare("
         SELECT id, sort_order 
         FROM $table 
@@ -73,10 +62,9 @@ function knx_api_reorder_item_category(WP_REST_Request $r) {
     ", $hub_id, $current->sort_order));
 
     if (!$neighbor) {
-        return knx_json_response(false, ['error' => 'no_neighbor'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'no_neighbor'], 400);
     }
 
-    /** Swap positions inside a transaction */
     $wpdb->query('START TRANSACTION');
 
     try {
@@ -99,17 +87,17 @@ function knx_api_reorder_item_category(WP_REST_Request $r) {
         $wpdb->query('COMMIT');
     } catch (Exception $e) {
         $wpdb->query('ROLLBACK');
-        return knx_json_response(false, ['error' => 'transaction_failed'], 500);
+        return new WP_REST_Response(['success' => false, 'error' => 'transaction_failed'], 500);
     }
 
-    /** ✅ After swap, normalize sort_order sequence */
     knx_normalize_category_sort_order($table, $hub_id);
 
-    return knx_json_response(true, [
-        'message' => 'Category reordered successfully',
-        'moved'   => $move,
+    return new WP_REST_Response([
+        'success'     => true,
+        'message'     => 'Category reordered successfully',
+        'moved'       => $move,
         'category_id' => $category_id
-    ]);
+    ], 200);
 }
 
 /**
@@ -132,16 +120,5 @@ function knx_normalize_category_sort_order($table, $hub_id) {
     foreach ($rows as $row) {
         $wpdb->update($table, ['sort_order' => $i], ['id' => $row->id], ['%d'], ['%d']);
         $i++;
-    }
-}
-
-/**
- * ==========================================================
- * Helper: JSON Response
- * ==========================================================
- */
-if (!function_exists('knx_json_response')) {
-    function knx_json_response($success, $data = [], $status = 200) {
-        return new WP_REST_Response(array_merge(['success' => $success], $data), $status);
     }
 }

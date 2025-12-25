@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 
 /**
  * ==========================================================
- * Kingdom Nexus - API: Update Hub Item (v1.0 Production)
+ * Kingdom Nexus - API: Update Hub Item (v1.0 - Canonical)
  * ----------------------------------------------------------
  * ✅ Updates item fields (name, desc, price, category, image)
  * ✅ Get item details for editing
@@ -11,20 +11,23 @@ if (!defined('ABSPATH')) exit;
  * ✅ Secure nonce verification
  * ✅ Portable prefix (Z7E_ / default)
  * ✅ Compatible with edit-item.js
+ * Routes:
+ *   - GET  /wp-json/knx/v1/get-item-details
+ *   - POST /wp-json/knx/v1/update-item
  * ==========================================================
  */
 
 add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/get-item-details', [
-        'methods'  => 'GET',
-        'callback' => 'knx_api_get_item_details',
-        'permission_callback' => '__return_true',
+        'methods'             => 'GET',
+        'callback'            => knx_rest_wrap('knx_api_get_item_details'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 
     register_rest_route('knx/v1', '/update-item', [
-        'methods'  => 'POST',
-        'callback' => 'knx_api_update_item',
-        'permission_callback' => '__return_true',
+        'methods'             => 'POST',
+        'callback'            => knx_rest_wrap('knx_api_update_item'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 });
 
@@ -36,28 +39,25 @@ add_action('rest_api_init', function () {
 function knx_api_get_item_details(WP_REST_Request $r) {
     global $wpdb;
 
-    /** Dynamic table name with current WP prefix */
     $table = $wpdb->prefix . 'knx_hub_items';
 
-    /** Get parameters */
     $hub_id  = intval($r->get_param('hub_id'));
     $item_id = intval($r->get_param('id'));
 
     if (!$hub_id || !$item_id) {
-        return knx_json_response(false, ['error' => 'missing_parameters'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'missing_parameters'], 400);
     }
 
-    /** Fetch item */
     $item = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table WHERE id=%d AND hub_id=%d LIMIT 1",
         $item_id, $hub_id
     ));
 
     if (!$item) {
-        return knx_json_response(false, ['error' => 'item_not_found'], 404);
+        return new WP_REST_Response(['success' => false, 'error' => 'item_not_found'], 404);
     }
 
-    return knx_json_response(true, ['item' => $item]);
+    return new WP_REST_Response(['success' => true, 'item' => $item], 200);
 }
 
 /**
@@ -65,14 +65,11 @@ function knx_api_get_item_details(WP_REST_Request $r) {
  * Update Item
  * ==========================================================
  */
-
 function knx_api_update_item(WP_REST_Request $r) {
     global $wpdb;
 
-    /** Dynamic table name with current WP prefix */
     $table = $wpdb->prefix . 'knx_hub_items';
 
-    /** Sanitize input */
     $hub_id      = intval($r->get_param('hub_id'));
     $id          = intval($r->get_param('id'));
     $name        = sanitize_text_field($r->get_param('name'));
@@ -83,23 +80,22 @@ function knx_api_update_item(WP_REST_Request $r) {
     $nonce       = sanitize_text_field($r->get_param('knx_nonce'));
 
     if (!$hub_id || !$id || !$name) {
-        return knx_json_response(false, ['error' => 'missing_parameters'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'missing_parameters'], 400);
     }
 
     if (!wp_verify_nonce($nonce, 'knx_edit_hub_nonce')) {
-        return knx_json_response(false, ['error' => 'invalid_nonce'], 403);
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
     }
 
-    /** Fetch current item */
     $current = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table WHERE id=%d AND hub_id=%d LIMIT 1",
         $id, $hub_id
     ));
+    
     if (!$current) {
-        return knx_json_response(false, ['error' => 'item_not_found'], 404);
+        return new WP_REST_Response(['success' => false, 'error' => 'item_not_found'], 404);
     }
 
-    /** Handle optional image upload */
     $image_url = $current->image_url;
     if (!empty($_FILES['item_image']) && $_FILES['item_image']['size'] > 0) {
         $upload_dir = wp_upload_dir();
@@ -112,7 +108,7 @@ function knx_api_update_item(WP_REST_Request $r) {
         $file = $_FILES['item_image'];
         $allowed = ['image/jpeg', 'image/png', 'image/webp'];
         if (!in_array($file['type'], $allowed)) {
-            return knx_json_response(false, ['error' => 'invalid_image_type'], 400);
+            return new WP_REST_Response(['success' => false, 'error' => 'invalid_image_type'], 400);
         }
 
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -124,7 +120,6 @@ function knx_api_update_item(WP_REST_Request $r) {
         }
     }
 
-    /** Update query */
     $updated = $wpdb->update(
         $table,
         [
@@ -142,20 +137,14 @@ function knx_api_update_item(WP_REST_Request $r) {
     );
 
     if ($updated === false) {
-        return knx_json_response(false, ['error' => 'db_update_failed'], 500);
+        return new WP_REST_Response(['success' => false, 'error' => 'db_update_failed'], 500);
     }
 
-    return knx_json_response(true, [
+    return new WP_REST_Response([
+        'success' => true,
         'message' => 'Item updated successfully',
         'id'      => $id,
         'hub_id'  => $hub_id,
         'image'   => $image_url
-    ]);
-}
-
-/** JSON Response helper */
-if (!function_exists('knx_json_response')) {
-    function knx_json_response($success, $data = [], $status = 200) {
-        return new WP_REST_Response(array_merge(['success' => $success], $data), $status);
-    }
+    ], 200);
 }

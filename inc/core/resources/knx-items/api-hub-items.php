@@ -3,36 +3,37 @@ if (!defined('ABSPATH')) exit;
 
 /**
  * ==========================================================
- * Kingdom Nexus - API: Hub Items CRUD (v3.0 Production)
+ * Kingdom Nexus - API: Hub Items CRUD (v3.0 - Canonical)
  * ----------------------------------------------------------
  * ✅ REST Real: get-hub-items, add-hub-item, delete-hub-item
  * ✅ Includes category_name via LEFT JOIN (knx_items_categories)
  * ✅ Compatible with edit-hub-items.js v3.0
  * ✅ Portable prefix (Z7E_ or default)
+ * Routes:
+ *   - GET  /wp-json/knx/v1/get-hub-items
+ *   - POST /wp-json/knx/v1/add-hub-item
+ *   - POST /wp-json/knx/v1/delete-hub-item
  * ==========================================================
  */
 
 add_action('rest_api_init', function () {
 
-    // GET items by hub
     register_rest_route('knx/v1', '/get-hub-items', [
-        'methods'  => 'GET',
-        'callback' => 'knx_api_get_hub_items',
-        'permission_callback' => '__return_true',
+        'methods'             => 'GET',
+        'callback'            => knx_rest_wrap('knx_api_get_hub_items'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 
-    // ADD item
     register_rest_route('knx/v1', '/add-hub-item', [
-        'methods'  => 'POST',
-        'callback' => 'knx_api_add_hub_item',
-        'permission_callback' => '__return_true',
+        'methods'             => 'POST',
+        'callback'            => knx_rest_wrap('knx_api_add_hub_item'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 
-    // DELETE item
     register_rest_route('knx/v1', '/delete-hub-item', [
-        'methods'  => 'POST',
-        'callback' => 'knx_api_delete_hub_item',
-        'permission_callback' => '__return_true',
+        'methods'             => 'POST',
+        'callback'            => knx_rest_wrap('knx_api_delete_hub_item'),
+        'permission_callback' => knx_rest_permission_session(),
     ]);
 });
 
@@ -44,13 +45,12 @@ add_action('rest_api_init', function () {
 function knx_api_get_hub_items(WP_REST_Request $r) {
     global $wpdb;
 
-    // Canonical KNX tables (no legacy fallbacks). Use central helper so names are consistent.
     $table_items = knx_table('hub_items');
     $table_cats  = knx_table('items_categories');
 
     $hub_id = intval($r->get_param('hub_id'));
     if (!$hub_id) {
-        return knx_json_response(false, ['error' => 'missing_hub_id'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'missing_hub_id'], 400);
     }
 
     $page      = max(1, intval($r->get_param('page') ?: 1));
@@ -64,7 +64,6 @@ function knx_api_get_hub_items(WP_REST_Request $r) {
         $where .= $wpdb->prepare(" AND (i.name LIKE %s OR i.description LIKE %s)", $like, $like);
     }
 
-    // ✅ LEFT JOIN to include category name
     $sql = "
         SELECT i.*, c.name AS category_name
         FROM $table_items i
@@ -78,13 +77,14 @@ function knx_api_get_hub_items(WP_REST_Request $r) {
     $total = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_items i $where"));
     $pages = ceil($total / $per_page);
 
-    return knx_json_response(true, [
-        'items'     => $items,
-        'total'     => intval($total),
-        'page'      => $page,
-        'per_page'  => $per_page,
-        'pages'     => $pages
-    ]);
+    return new WP_REST_Response([
+        'success'  => true,
+        'items'    => $items,
+        'total'    => intval($total),
+        'page'     => $page,
+        'per_page' => $per_page,
+        'pages'    => $pages
+    ], 200);
 }
 
 /**
@@ -95,13 +95,7 @@ function knx_api_get_hub_items(WP_REST_Request $r) {
 function knx_api_add_hub_item(WP_REST_Request $r) {
     global $wpdb;
 
-    // Use canonical KNX hub items table
     $table_items = knx_table('hub_items');
-
-    $session = knx_get_session();
-    if (!$session) {
-        return knx_json_response(false, ['error' => 'unauthorized'], 403);
-    }
 
     $hub_id      = intval($r->get_param('hub_id'));
     $category_id = intval($r->get_param('category_id'));
@@ -111,14 +105,13 @@ function knx_api_add_hub_item(WP_REST_Request $r) {
     $nonce       = sanitize_text_field($r->get_param('knx_nonce'));
 
     if (!$hub_id || !$category_id || !$name || !$price) {
-        return knx_json_response(false, ['error' => 'missing_fields'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'missing_fields'], 400);
     }
 
     if (!wp_verify_nonce($nonce, 'knx_edit_hub_nonce')) {
-        return knx_json_response(false, ['error' => 'invalid_nonce'], 403);
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
     }
 
-    // ✅ Handle image upload
     $image_url = null;
     if (!empty($_FILES['item_image']) && $_FILES['item_image']['size'] > 0) {
         $upload_dir = wp_upload_dir();
@@ -131,7 +124,7 @@ function knx_api_add_hub_item(WP_REST_Request $r) {
         $file = $_FILES['item_image'];
         $allowed = ['image/jpeg', 'image/png', 'image/webp'];
         if (!in_array($file['type'], $allowed)) {
-            return knx_json_response(false, ['error' => 'invalid_image_type'], 400);
+            return new WP_REST_Response(['success' => false, 'error' => 'invalid_image_type'], 400);
         }
 
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -143,7 +136,6 @@ function knx_api_add_hub_item(WP_REST_Request $r) {
         }
     }
 
-    // ✅ Insert item
     $wpdb->insert($table_items, [
         'hub_id'       => $hub_id,
         'category_id'  => $category_id,
@@ -157,11 +149,12 @@ function knx_api_add_hub_item(WP_REST_Request $r) {
         'updated_at'   => current_time('mysql'),
     ], ['%d','%d','%s','%s','%f','%s','%s','%d','%s','%s']);
 
-    return knx_json_response(true, [
+    return new WP_REST_Response([
+        'success' => true,
         'message' => 'Item added successfully',
         'id'      => $wpdb->insert_id,
         'image'   => $image_url
-    ]);
+    ], 200);
 }
 
 /**
@@ -172,7 +165,6 @@ function knx_api_add_hub_item(WP_REST_Request $r) {
 function knx_api_delete_hub_item(WP_REST_Request $r) {
     global $wpdb;
 
-    // Use canonical KNX hub items table
     $table_items = knx_table('hub_items');
 
     $hub_id = intval($r->get_param('hub_id'));
@@ -180,30 +172,21 @@ function knx_api_delete_hub_item(WP_REST_Request $r) {
     $nonce  = sanitize_text_field($r->get_param('knx_nonce'));
 
     if (!$hub_id || !$id) {
-        return knx_json_response(false, ['error' => 'missing_fields'], 400);
+        return new WP_REST_Response(['success' => false, 'error' => 'missing_fields'], 400);
     }
+    
     if (!wp_verify_nonce($nonce, 'knx_edit_hub_nonce')) {
-        return knx_json_response(false, ['error' => 'invalid_nonce'], 403);
+        return new WP_REST_Response(['success' => false, 'error' => 'invalid_nonce'], 403);
     }
 
     $deleted = $wpdb->delete($table_items, ['id' => $id, 'hub_id' => $hub_id], ['%d','%d']);
     if ($deleted === false) {
-        return knx_json_response(false, ['error' => 'delete_failed'], 500);
+        return new WP_REST_Response(['success' => false, 'error' => 'delete_failed'], 500);
     }
 
-    return knx_json_response(true, [
+    return new WP_REST_Response([
+        'success' => true,
         'message' => 'Item deleted successfully',
         'id'      => $id
-    ]);
-}
-
-/**
- * ==========================================================
- * Helper: JSON Response
- * ==========================================================
- */
-if (!function_exists('knx_json_response')) {
-    function knx_json_response($success, $data = [], $status = 200) {
-        return new WP_REST_Response(array_merge(['success' => $success], $data), $status);
-    }
+    ], 200);
 }
