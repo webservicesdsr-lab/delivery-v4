@@ -3,17 +3,18 @@ if (!defined('ABSPATH')) exit;
 
 /**
  * ==========================================================
- * Kingdom Nexus - API: Get Hub (v4.0 Production)
+ * Kingdom Nexus - API: Get Hub (v4.0 Production - Canonical)
  * ----------------------------------------------------------
  * Retrieves hub data by ID for edit-hub template.
  * Supports city_id for dropdown and dynamic table prefixes.
+ * Route: GET /wp-json/knx/v1/get-hub?id={hub_id}
  * ==========================================================
  */
 
 add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/get-hub', [
         'methods'  => 'GET',
-        'callback' => 'knx_api_get_hub_v40',
+        'callback' => knx_rest_wrap('knx_api_get_hub_v40'),
         'permission_callback' => '__return_true',
     ]);
 });

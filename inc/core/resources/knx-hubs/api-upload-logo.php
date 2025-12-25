@@ -2,31 +2,28 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - Upload Hub Logo API (v1.1)
- * --------------------------------------------------------
+ * ==========================================================
+ * Kingdom Nexus - Upload Hub Logo API (v1.1 - Canonical)
+ * ----------------------------------------------------------
  * Securely uploads, resizes and compresses a hub logo
  * ✅ Crops image to 590x400px (no distortion)
  * ✅ Compresses if over 300KB (max quality ~85%)
  * ✅ Deletes old logos before saving
  * ✅ Updates DB with final URL
+ * Route: POST /wp-json/knx/v1/upload-logo
+ * ==========================================================
  */
 
 add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/upload-logo', [
         'methods'  => 'POST',
-        'callback' => 'knx_api_upload_logo',
-        'permission_callback' => '__return_true',
+        'callback' => knx_rest_wrap('knx_api_upload_logo'),
+        'permission_callback' => knx_rest_permission_roles(['super_admin', 'manager', 'hub_management']),
     ]);
 });
 
 function knx_api_upload_logo(WP_REST_Request $r) {
     global $wpdb;
-
-    /** Validate session */
-    $session = knx_get_session();
-    if (!$session || !in_array($session->role, ['super_admin', 'manager', 'hub_management'])) {
-        return knx_json_response(false, ['error' => 'unauthorized'], 403);
-    }
 
     /** Validate nonce */
     $nonce = sanitize_text_field($r->get_param('knx_nonce'));
@@ -128,14 +125,4 @@ function knx_api_upload_logo(WP_REST_Request $r) {
         'message' => '✅ Logo uploaded and optimized successfully',
         'url'     => $file_url
     ]);
-}
-
-/**
- * Helper: JSON response format
- */
-if (!function_exists('knx_json_response')) {
-    function knx_json_response($success, $data = [], $status = 200) {
-        $response = array_merge(['success' => $success], $data);
-        return new WP_REST_Response($response, $status);
-    }
 }

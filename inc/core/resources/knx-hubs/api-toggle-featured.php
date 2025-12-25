@@ -2,22 +2,19 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * API: Toggle Featured Status for Hub
+ * ==========================================================
+ * API: Toggle Featured Status for Hub (Canonical)
+ * ----------------------------------------------------------
  * POST /wp-json/knx/v1/toggle-featured
  * Security: Nonce + Role check (super_admin, manager only)
+ * ==========================================================
  */
 
 add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/toggle-featured', [
         'methods' => 'POST',
-        'callback' => 'knx_api_toggle_featured',
-        'permission_callback' => function() {
-            $session = knx_get_session();
-            if (!$session) return false;
-            
-            $allowed_roles = ['super_admin', 'manager'];
-            return in_array($session->role, $allowed_roles, true);
-        }
+        'callback' => knx_rest_wrap('knx_api_toggle_featured'),
+        'permission_callback' => knx_rest_permission_roles(['super_admin', 'manager']),
     ]);
 });
 

@@ -2,18 +2,19 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - Update Hub Slug API
+ * ==========================================================
+ * Kingdom Nexus - Update Hub Slug API (Canonical)
+ * ----------------------------------------------------------
  * Manages hub slug updates with uniqueness validation
+ * Route: POST /wp-json/knx/v1/update-hub-slug
+ * ==========================================================
  */
 
 add_action('rest_api_init', function () {
     register_rest_route('knx/v1', '/update-hub-slug', [
         'methods' => 'POST',
-        'callback' => 'knx_api_update_hub_slug',
-        'permission_callback' => function () {
-            $session = knx_get_session();
-            return $session && in_array($session->role, ['super_admin', 'manager', 'hub_management'], true);
-        }
+        'callback' => knx_rest_wrap('knx_api_update_hub_slug'),
+        'permission_callback' => knx_rest_permission_roles(['super_admin', 'manager', 'hub_management']),
     ]);
 });
 

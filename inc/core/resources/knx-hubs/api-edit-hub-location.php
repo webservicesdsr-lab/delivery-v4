@@ -2,25 +2,26 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - API: Update Hub Location (v3.0 Polygon Support)
- * -----------------------------------------------------
- * Route: POST /wp-json/knx/v1/update-hub-location
- * Route: GET /wp-json/knx/v1/get-hub-polygon/{id}
- * 
+ * ==========================================================
+ * Kingdom Nexus - API: Update Hub Location (v3.0 - Canonical)
+ * ----------------------------------------------------------
+ * Routes:
+ *   - POST /wp-json/knx/v1/update-hub-location
+ *   - GET /wp-json/knx/v1/get-hub-polygon/{id}
  * Based on old Laravel app polygon logic
+ * ==========================================================
  */
 
 add_action('rest_api_init', function () {
   register_rest_route('knx/v1', '/update-hub-location', [
     'methods'  => 'POST',
-    'callback' => 'knx_api_update_hub_location',
-    'permission_callback' => '__return_true',
+    'callback' => knx_rest_wrap('knx_api_update_hub_location'),
+    'permission_callback' => knx_rest_permission_roles(['super_admin','manager','hub_management','menu_uploader','vendor_owner']),
   ]);
   
-  // Get hub polygon endpoint (old app style)
   register_rest_route('knx/v1', '/get-hub-polygon/(?P<id>\d+)', [
     'methods'  => 'GET',
-    'callback' => 'knx_api_get_hub_polygon',
+    'callback' => knx_rest_wrap('knx_api_get_hub_polygon'),
     'permission_callback' => '__return_true',
   ]);
 });
@@ -28,20 +29,11 @@ add_action('rest_api_init', function () {
 function knx_api_update_hub_location(WP_REST_Request $r) {
   global $wpdb;
 
-  // --- Auth (sesi¨®n + nonce)
-  $session = function_exists('knx_get_session') ? knx_get_session() : null;
-  if (
-    !$session ||
-    !in_array($session->role, ['super_admin','manager','hub_management','menu_uploader','vendor_owner'], true)
-  ) {
-    return new WP_REST_Response(['success'=>false,'error'=>'unauthorized'], 403);
-  }
   $nonce = (string) $r->get_param('knx_nonce');
   if (!wp_verify_nonce($nonce, 'knx_edit_hub_nonce')) {
     return new WP_REST_Response(['success'=>false,'error'=>'invalid_nonce'], 403);
   }
 
-  // --- Params seguros
   $hub_id = intval($r->get_param('hub_id'));
   $address_raw = $r->get_param('address');
   $address = is_string($address_raw) ? trim(wp_kses_post($address_raw)) : '';
@@ -49,9 +41,8 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
   $lng_raw = $r->get_param('lng');
   $radius_raw = $r->get_param('delivery_radius');
   $zone_type = sanitize_text_field($r->get_param('delivery_zone_type') ?: 'radius');
-  $polygon_points = $r->get_param('polygon_points'); // Array from old app format
+  $polygon_points = $r->get_param('polygon_points');
 
-  // Aceptar 0.0 v¨¢lidos (no usar if(!$lat))
   $lat = is_numeric($lat_raw) ? (float)$lat_raw : null;
   $lng = is_numeric($lng_raw) ? (float)$lng_raw : null;
   $radius = is_numeric($radius_raw) ? (float)$radius_raw : 0.0;
@@ -60,16 +51,13 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
     return new WP_REST_Response(['success'=>false,'error'=>'missing_fields'], 400);
   }
 
-  // Validate zone type
   if (!in_array($zone_type, ['radius', 'polygon'])) {
     $zone_type = 'radius';
   }
 
-  // --- Tabla (usa prefijo WP)
   $table = $wpdb->prefix . 'knx_hubs';
   $zones_table = $wpdb->prefix . 'knx_delivery_zones';
 
-  // Nota: tu esquema usa `latitude` / `longitude` (DECIMAL), no `lat` / `lng`.
   $data = [
     'address'              => $address,
     'latitude'             => $lat,
@@ -80,11 +68,9 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
   ];
   $formats = ['%s','%f','%f','%f','%s','%s'];
 
-  // Intentar update
   $updated = $wpdb->update($table, $data, ['id' => $hub_id], $formats, ['%d']);
 
   if ($updated === false) {
-    // Error SQL real
     return new WP_REST_Response([
       'success'=>false,
       'error'=>'db_update_failed',
@@ -92,12 +78,9 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
     ], 500);
   }
 
-  // Si es polygon y hay puntos, guardar en delivery_zones (old app style)
   if ($zone_type === 'polygon' && is_array($polygon_points) && count($polygon_points) >= 3) {
-    // Delete old polygons for this hub
     $wpdb->delete($zones_table, ['hub_id' => $hub_id], ['%d']);
     
-    // Insert new polygon (formato: [{"lat":40.7,"lng":-74}, ...])
     $polygon_json = json_encode($polygon_points);
     
     $wpdb->insert($zones_table, [
@@ -113,7 +96,6 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
     ], ['%d','%s','%s','%s','%f','%s','%d','%d','%s']);
   }
 
-  // $updated === 0 significa "sin cambios", pero es OK
   return new WP_REST_Response([
     'success' => true,
     'hub_id'  => $hub_id,
@@ -125,9 +107,6 @@ function knx_api_update_hub_location(WP_REST_Request $r) {
   ], 200);
 }
 
-/**
- * Get hub polygon data (old app style endpoint)
- */
 function knx_api_get_hub_polygon($request) {
   global $wpdb;
   
@@ -137,7 +116,6 @@ function knx_api_get_hub_polygon($request) {
     return new WP_REST_Response(['status'=>false,'errMsg'=>'Hub ID required'], 400);
   }
   
-  // Get hub data
   $table_hubs = $wpdb->prefix . 'knx_hubs';
   $hub = $wpdb->get_row($wpdb->prepare(
     "SELECT latitude, longitude, delivery_zone_type, delivery_radius FROM $table_hubs WHERE id = %d",
@@ -158,7 +136,6 @@ function knx_api_get_hub_polygon($request) {
     ]
   ];
   
-  // If polygon type, get polygon points
   if ($hub->delivery_zone_type === 'polygon') {
     $table_zones = $wpdb->prefix . 'knx_delivery_zones';
     $polygon = $wpdb->get_row($wpdb->prepare(

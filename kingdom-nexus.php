@@ -85,15 +85,11 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/session-cleaner.php');
 
     knx_require('inc/core/api-settings.php');
-    knx_require('inc/core/api.php');
-    knx_require('inc/core/api-get-hub.php');
-    knx_require('inc/core/api-hub-hours.php');
 
     // Cities (supporting)
     knx_require('inc/core/api-delivery-rates.php');
     knx_require('inc/core/api-check-coverage.php');
 
-    knx_require('inc/core/knx-hubs/api-hub-categories.php');
     knx_require('inc/core/api-hub-items.php');
     knx_require('inc/core/api-reorder-item.php');
     knx_require('inc/core/api-get-item-categories.php');
@@ -109,12 +105,25 @@ add_action('plugins_loaded', function() {
      * PUBLIC / DISCOVERY
      * ====================================================== */
     knx_require('inc/core/api-explore-hubs.php');
-    knx_require('inc/core/api-toggle-featured.php');
     knx_require('inc/core/api-location-search.php');
-    knx_require('inc/core/api-hubs.php');
     knx_require('inc/core/api-hours-extension.php');
-    knx_require('inc/core/api-delete-hub.php');
-    knx_require('inc/core/api-update-hub-slug.php');
+
+    /* ======================================================
+     * RESOURCES — KNX HUBS (CANONICAL)
+     * ====================================================== */
+    knx_require('inc/core/resources/knx-hubs/api-hub-categories.php');
+    knx_require('inc/core/resources/knx-hubs/api-hubs-core.php');
+    knx_require('inc/core/resources/knx-hubs/api-hubs.php');
+    knx_require('inc/core/resources/knx-hubs/api-get-hub.php');
+    knx_require('inc/core/resources/knx-hubs/api-toggle-featured.php');
+    knx_require('inc/core/resources/knx-hubs/api-update-hub-slug.php');
+    knx_require('inc/core/resources/knx-hubs/api-upload-logo.php');
+    knx_require('inc/core/resources/knx-hubs/api-edit-hub-identity.php');
+    knx_require('inc/core/resources/knx-hubs/api-edit-hub-location.php');
+    knx_require('inc/core/resources/knx-hubs/api-hub-hours.php');
+    knx_require('inc/core/resources/knx-hubs/api-update-closure.php');
+    knx_require('inc/core/resources/knx-hubs/api-delete-hub.php');
+    knx_require('inc/core/resources/knx-hubs/api-update-settings.php');
 
     /* ======================================================
      * RESOURCES — KNX CITIES (SEALED)
