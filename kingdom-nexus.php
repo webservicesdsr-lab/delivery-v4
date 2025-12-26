@@ -84,12 +84,8 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/pages-installer.php');
     knx_require('inc/core/session-cleaner.php');
 
-    knx_require('inc/core/api-settings.php');
-
     // Cities (supporting)
     knx_require('inc/core/api-delivery-rates.php');
-
-    knx_require('inc/core/api-hours-extension.php');
 
     /* ======================================================
      * RESOURCES — KNX HUBS (CANONICAL)
@@ -128,6 +124,12 @@ add_action('plugins_loaded', function() {
      * RESOURCES — KNX EXPLORE (CANONICAL)
      * ====================================================== */
     knx_require('inc/core/resources/knx-explore/api-explore-hubs.php');
+
+    /* ======================================================
+     * RESOURCES — KNX SYSTEM (CANONICAL)
+     * ====================================================== */
+    knx_require('inc/core/resources/knx-system/api-hours-extension.php');
+    knx_require('inc/core/resources/knx-system/api-settings.php');
 
     /* ======================================================
      * RESOURCES — KNX ITEMS (CANONICAL)

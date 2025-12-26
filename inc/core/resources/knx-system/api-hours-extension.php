@@ -2,10 +2,17 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - Hours API Extension (v1.0)
- * ==========================================
+ * ==========================================================
+ * Kingdom Nexus - Hours API Extension (Canonical)
+ * ----------------------------------------------------------
  * Additional endpoints that extend existing APIs with hours data
  * WITHOUT modifying the original endpoints.
+ * 
+ * Endpoints:
+ * - GET /knx/v1/hub-status/{id}
+ * - GET /knx/v1/hubs-with-hours
+ * - POST /knx/v1/hubs-status
+ * ==========================================================
  */
 
 add_action('rest_api_init', function() {
@@ -13,7 +20,7 @@ add_action('rest_api_init', function() {
     // Get hub status (single hub)
     register_rest_route('knx/v1', '/hub-status/(?P<id>\d+)', [
         'methods'             => 'GET',
-        'callback'            => 'knx_api_hub_status',
+        'callback'            => knx_rest_wrap('knx_api_hub_status'),
         'permission_callback' => '__return_true',
         'args' => [
             'id' => [
@@ -27,14 +34,14 @@ add_action('rest_api_init', function() {
     // Enhanced hubs list with hours
     register_rest_route('knx/v1', '/hubs-with-hours', [
         'methods'             => 'GET',
-        'callback'            => 'knx_api_hubs_with_hours',
+        'callback'            => knx_rest_wrap('knx_api_hubs_with_hours'),
         'permission_callback' => '__return_true',
     ]);
     
     // Batch status check for multiple hubs
     register_rest_route('knx/v1', '/hubs-status', [
         'methods'             => 'POST',
-        'callback'            => 'knx_api_hubs_status_batch',
+        'callback'            => knx_rest_wrap('knx_api_hubs_status_batch'),
         'permission_callback' => '__return_true',
     ]);
 });

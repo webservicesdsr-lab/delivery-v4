@@ -2,16 +2,21 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Kingdom Nexus - Core Settings API (v3.2)
- * ----------------------------------------
+ * ==========================================================
+ * Kingdom Nexus - Core Settings API (Canonical)
+ * ----------------------------------------------------------
  * Handles saving and reading Google Maps API keys for Nexus modules.
  * Auto-detects hybrid prefixes like "Z7E_knx_" for compatibility.
+ * 
+ * Endpoint:
+ * - POST /knx/v1/update-settings
+ * ==========================================================
  */
 
 add_action('rest_api_init', function() {
     register_rest_route('knx/v1', '/update-settings', [
         'methods'             => 'POST',
-        'callback'            => 'knx_api_update_settings',
+        'callback'            => knx_rest_wrap('knx_api_update_settings'),
         'permission_callback' => function() {
             return current_user_can('manage_options');
         },
