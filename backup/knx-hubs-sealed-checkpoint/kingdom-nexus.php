@@ -88,7 +88,16 @@ add_action('plugins_loaded', function() {
 
     // Cities (supporting)
     knx_require('inc/core/api-delivery-rates.php');
+    knx_require('inc/core/api-check-coverage.php');
 
+    knx_require('inc/core/api-menu-read.php');
+    knx_require('inc/core/api-cart.php');
+
+    /* ======================================================
+     * PUBLIC / DISCOVERY
+     * ====================================================== */
+    knx_require('inc/core/api-explore-hubs.php');
+    knx_require('inc/core/api-location-search.php');
     knx_require('inc/core/api-hours-extension.php');
 
     /* ======================================================
@@ -109,27 +118,6 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/resources/knx-hubs/api-update-settings.php');
 
     /* ======================================================
-     * RESOURCES — KNX CART (CANONICAL)
-     * ====================================================== */
-    knx_require('inc/core/resources/knx-cart/api-cart.php');
-
-    /* ======================================================
-     * RESOURCES — KNX CHECKOUT (CANONICAL)
-     * ====================================================== */
-    knx_require('inc/core/resources/knx-checkout/api-checkout-prevalidate.php');
-
-    /* ======================================================
-     * RESOURCES — KNX LOCATION (CANONICAL)
-     * ====================================================== */
-    knx_require('inc/core/resources/knx-location/api-check-coverage.php');
-    knx_require('inc/core/resources/knx-location/api-location-search.php');
-
-    /* ======================================================
-     * RESOURCES — KNX EXPLORE (CANONICAL)
-     * ====================================================== */
-    knx_require('inc/core/resources/knx-explore/api-explore-hubs.php');
-
-    /* ======================================================
      * RESOURCES — KNX ITEMS (CANONICAL)
      * ====================================================== */
     knx_require('inc/core/resources/knx-items/api-get-item-categories.php');
@@ -141,7 +129,6 @@ add_action('plugins_loaded', function() {
     knx_require('inc/core/resources/knx-items/api-update-item.php');
     knx_require('inc/core/resources/knx-items/api-reorder-item.php');
     knx_require('inc/core/resources/knx-items/api-item-addons.php');
-    knx_require('inc/core/resources/knx-items/api-menu-read.php');
 
     /* ======================================================
      * RESOURCES — KNX CITIES (SEALED)

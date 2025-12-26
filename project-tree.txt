@@ -7,7 +7,8 @@
 │   ├── .DS_Store
 │   ├── cities-edit-v4-delivery-rates-A-sealed-ui-wired.zip
 │   ├── cities-v2-sealed-guarded-ui-final.zip
-│   └── knx-cities-v2-sealed-migrations-ready.zip
+│   ├── knx-cities-v2-sealed-migrations-ready.zip
+│   └── knx-hubs-sealed-checkpoint.zip
 ├── current-status.md
 ├── inc
 │   ├── .DS_Store
@@ -15,24 +16,11 @@
 │   │   ├── api-cart.php
 │   │   ├── api-check-coverage.php
 │   │   ├── api-checkout-prevalidate.php
-│   │   ├── api-cities.php
-│   │   ├── api-delete-item-category.php
-│   │   ├── api-delivery-rates.php
 │   │   ├── api-explore-hubs.php
-│   │   ├── api-get-item-categories.php
 │   │   ├── api-hours-extension.php
-│   │   ├── api-hub-items.php
-│   │   ├── api-item-addons.php
-│   │   ├── api-item-categories.php
 │   │   ├── api-location-search.php
 │   │   ├── api-menu-read.php
-│   │   ├── api-modifiers.php
-│   │   ├── api-reorder-item-category.php
-│   │   ├── api-reorder-item.php
-│   │   ├── api-save-item-category.php
 │   │   ├── api-settings.php
-│   │   ├── api-toggle-item-category.php
-│   │   ├── api-update-item.php
 │   │   ├── cart
 │   │   │   └── cart-cleanup.php
 │   │   ├── db-install.php
@@ -40,6 +28,8 @@
 │   │   ├── knx-hubs
 │   │   ├── pages-installer.php
 │   │   ├── resources
+│   │   │   ├── knx-cart
+│   │   │   ├── knx-checkout
 │   │   │   ├── knx-cities
 │   │   │   │   ├── add-city.php
 │   │   │   │   ├── api-edit-city.php
@@ -48,20 +38,34 @@
 │   │   │   │   ├── get-delivery-rates.php
 │   │   │   │   ├── post-operational-toggle.php
 │   │   │   │   └── update-delivery-rates.php
-│   │   │   └── knx-hubs
-│   │   │       ├── api-delete-hub.php
-│   │   │       ├── api-edit-hub-identity.php
-│   │   │       ├── api-edit-hub-location.php
-│   │   │       ├── api-get-hub.php
-│   │   │       ├── api-hub-categories.php
-│   │   │       ├── api-hub-hours.php
-│   │   │       ├── api-hubs-core.php
-│   │   │       ├── api-hubs.php
-│   │   │       ├── api-toggle-featured.php
-│   │   │       ├── api-update-closure.php
-│   │   │       ├── api-update-hub-slug.php
-│   │   │       ├── api-update-settings.php
-│   │   │       └── api-upload-logo.php
+│   │   │   ├── knx-explore
+│   │   │   ├── knx-hubs
+│   │   │   │   ├── api-delete-hub.php
+│   │   │   │   ├── api-edit-hub-identity.php
+│   │   │   │   ├── api-edit-hub-location.php
+│   │   │   │   ├── api-get-hub.php
+│   │   │   │   ├── api-hub-categories.php
+│   │   │   │   ├── api-hub-hours.php
+│   │   │   │   ├── api-hubs-core.php
+│   │   │   │   ├── api-hubs.php
+│   │   │   │   ├── api-toggle-featured.php
+│   │   │   │   ├── api-update-closure.php
+│   │   │   │   ├── api-update-hub-slug.php
+│   │   │   │   ├── api-update-settings.php
+│   │   │   │   └── api-upload-logo.php
+│   │   │   ├── knx-items
+│   │   │   │   ├── api-delete-item-category.php
+│   │   │   │   ├── api-get-item-categories.php
+│   │   │   │   ├── api-hub-items.php
+│   │   │   │   ├── api-item-addons.php
+│   │   │   │   ├── api-modifiers.php
+│   │   │   │   ├── api-reorder-item-category.php
+│   │   │   │   ├── api-reorder-item.php
+│   │   │   │   ├── api-save-item-category.php
+│   │   │   │   ├── api-toggle-item-category.php
+│   │   │   │   └── api-update-item.php
+│   │   │   ├── knx-location
+│   │   │   └── knx-system
 │   │   ├── rest
 │   │   │   ├── knx-rest-guard.php
 │   │   │   ├── knx-rest-response.php
@@ -185,4 +189,4 @@
 ├── kingdom-nexus.php
 └── project-tree.txt
 
-32 directories, 154 files
+38 directories, 152 files

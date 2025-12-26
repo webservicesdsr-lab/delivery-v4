@@ -1,0 +1,112 @@
+/**
+ * ==========================================================
+ * Kingdom Nexus - Edit City Style (v3.0 Production)
+ * ----------------------------------------------------------
+ * Matches Hubs + Cities UI system
+ * ==========================================================
+ */
+
+.knx-edit-city-wrapper,
+.knx-edit-city-rates-wrapper {
+  max-width: 900px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.knx-edit-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.knx-card h2 {
+  color: #0b793a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.knx-form-group {
+  margin-bottom: 15px;
+}
+
+.knx-form-group input,
+.knx-form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.knx-save-row {
+  text-align: right;
+}
+
+.knx-btn {
+  background: #0b793a;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.knx-btn-secondary {
+  background: #556ee6;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Delivery Rates Section */
+.knx-rates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.knx-rate-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.knx-rate-row input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.knx-rate-row .remove {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.knx-rates-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .knx-rate-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .knx-rate-row .remove {
+    grid-column: span 2;
+  }
+}
